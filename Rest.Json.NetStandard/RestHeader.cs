@@ -34,4 +34,22 @@ namespace Rest.Json
             return -1;
         }
     }
+
+    public class RestAuthHeader : RestHeader
+    {
+        public RestAuthHeader(string value) : base("Authorization", value)
+        {
+        }
+    }
+
+    public class RestDateHeader : RestHeader
+    {
+        public RestDateHeader(DateTime dateTime) : base("Date", dateTime.ToString("yyyy-MM-ddTHH:mm:ss"))
+        {
+        }
+
+        public RestDateHeader(DateTimeOffset dateTime) : base("Date", dateTime.ToString("yyyy-MM-ddTHH:mm:ss"))
+        {
+        }
+    }
 }

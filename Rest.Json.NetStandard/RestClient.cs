@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Dynamic;
 using System.Net;
+using System.Globalization;
 
 namespace Rest.Json
 {
@@ -60,7 +61,11 @@ namespace Rest.Json
                 case "Authorization":
                     requestMessage.Headers.Authorization = AuthenticationHeaderValue.Parse(header.Value);
                     break;
-                    
+
+                case "Date":
+                    requestMessage.Headers.Date = DateTimeOffset.ParseExact(header.Value, "yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture);
+                    break;
+
                 case "Content-Type":
                     requestMessage.Content.Headers.ContentType = MediaTypeHeaderValue.Parse(header.Value);
                     break;

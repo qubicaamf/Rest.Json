@@ -46,9 +46,6 @@
     <Compile Include="..\Rest.Json.NetStandard\IRestClient.cs">
       <Link>IRestClient.cs</Link>
     </Compile>
-    <Compile Include="..\Rest.Json.NetStandard\RestAuthHeader.cs">
-      <Link>RestAuthHeader.cs</Link>
-    </Compile>
     <Compile Include="..\Rest.Json.NetStandard\RestClient.cs">
       <Link>RestClient.cs</Link>
     </Compile>

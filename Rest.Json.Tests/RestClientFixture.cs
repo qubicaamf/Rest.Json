@@ -8,6 +8,7 @@ using NUnit.Framework;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore;
 using Rest.Json.Tests.Models;
+using System.Globalization;
 
 namespace Rest.Json.Tests
 {
@@ -206,6 +207,16 @@ namespace Rest.Json.Tests
             var value = await _restClient.GetAsync<string>("api/test/authorization", new RestAuthHeader("MySchema MyUser:MyPassword"));
 
             Assert.That(value, Is.EqualTo("MySchema MyUser:MyPassword"));
+        }
+
+        [Test]
+        public async Task SetDateHeader()
+        {
+            var now = DateTime.Now;
+
+            var value = await _restClient.GetAsync<string>("api/test/date", new RestDateHeader(now));
+
+            Assert.That(DateTime.Parse(value), Is.EqualTo(new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second)));
         }
 
         [Test]

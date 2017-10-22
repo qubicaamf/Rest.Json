@@ -112,5 +112,12 @@ namespace WebApplicationCore.Controllers
         {
             return Redirect("http://www.google.it");
         }
+
+        [HttpGet]
+        [Route("date")]
+        public string Date()
+        {
+            return Request.Headers["Date"];
+        }
     }
 }
