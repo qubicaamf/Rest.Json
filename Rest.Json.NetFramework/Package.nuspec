@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<package>
+	<metadata>
+		<!-- Required elements-->
+		
+		<id>Rest.Json.NetFramework</id>
+		<version>1.0.0.1</version>
+		<description>A simple, lightweight and mockable C# Rest client focused on JSON but works also with text and raw bytes, built upon HttpClient and Newtonsoft.Json.</description>
+		<authors>QubicaAMF</authors>
+
+		<!-- Optional elements -->
+		
+		<!--<owners></owners>
+		<title>MyTitle</title>
+		<releaseNotes>
+		</releaseNotes>
+		<summary>Description</summary>
+		<language>en-US</language>
+		<projectUrl>https://nuget.org/packages/$assemblyName</projectUrl>
+		<iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<licenseUrl>http://opensource.org/licenses/Apache-2.0</licenseUrl>
+		<copyright>Copyright QbuciaAMF 2017</copyright>
+		<dependencies></dependencies>
+		<references></references>
+		<tags>SFNuGet</tags>-->
+	</metadata>
+</package>
