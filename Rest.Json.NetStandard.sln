@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rest.Json.NetStandard", "Re
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rest.Json.Tests", "Rest.Json.Tests\Rest.Json.Tests.csproj", "{BF4A687E-E6C7-4381-B9ED-20C4F39D2413}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rest.Json.NetFramework", "Rest.Json.NetFramework\Rest.Json.NetFramework.csproj", "{3C41D58D-4B6D-49F8-8DDF-75171C23CE2F}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,10 +21,6 @@ Global
 		{BF4A687E-E6C7-4381-B9ED-20C4F39D2413}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BF4A687E-E6C7-4381-B9ED-20C4F39D2413}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BF4A687E-E6C7-4381-B9ED-20C4F39D2413}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3C41D58D-4B6D-49F8-8DDF-75171C23CE2F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3C41D58D-4B6D-49F8-8DDF-75171C23CE2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3C41D58D-4B6D-49F8-8DDF-75171C23CE2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3C41D58D-4B6D-49F8-8DDF-75171C23CE2F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

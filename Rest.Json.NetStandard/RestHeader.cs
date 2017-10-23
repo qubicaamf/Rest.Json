@@ -35,6 +35,13 @@ namespace Rest.Json
         }
     }
 
+    public class RestContentTypeHeader : RestHeader
+    {
+        public RestContentTypeHeader(string value) : base("Content-Type", value)
+        {
+        }
+    }
+
     public class RestAuthHeader : RestHeader
     {
         public RestAuthHeader(string value) : base("Authorization", value)

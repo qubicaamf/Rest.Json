@@ -49,9 +49,6 @@
     <Compile Include="..\Rest.Json.NetStandard\RestClient.cs">
       <Link>RestClient.cs</Link>
     </Compile>
-    <Compile Include="..\Rest.Json.NetStandard\RestContentTypeHeader.cs">
-      <Link>RestContentTypeHeader.cs</Link>
-    </Compile>
     <Compile Include="..\Rest.Json.NetStandard\RestException.cs">
       <Link>RestException.cs</Link>
     </Compile>
