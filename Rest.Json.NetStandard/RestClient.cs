@@ -31,7 +31,27 @@ namespace Rest.Json
 			_baseAddress = baseAddress;
 		}
 
+        private async Task ExecuteAsync(HttpMethod httpMethod, string address, object requestContent, params RestHeader[] headers)
+        {
+            await ProcessAsync<object>(httpMethod, address, requestContent, headers, false);
+        }
+
         private async Task<T> ExecuteAsync<T>(HttpMethod httpMethod, string address, object requestContent, params RestHeader[] headers)
+        {
+            return await ProcessAsync<T>(httpMethod, address, requestContent, headers, true);
+        }
+
+        private async Task ExecuteAsync(HttpRequestMessage request)
+        {
+            await ProcessAsync<object>(request, false);
+        }
+
+        private async Task<T> ExecuteAsync<T>(HttpRequestMessage request)
+        {
+            return await ProcessAsync<T>(request, true);
+        }
+
+        private async Task<T> ProcessAsync<T>(HttpMethod httpMethod, string address, object requestContent, RestHeader[] headers, bool returnValue)
         {
             var request = new HttpRequestMessage(httpMethod, address);
             
@@ -51,7 +71,7 @@ namespace Rest.Json
             foreach (var header in headers)
                 AddHeader(request, header);
 
-            return await ExecuteAsync<T>(request);
+            return await ProcessAsync<T>(request, returnValue);
         }
 
         private void AddHeader(HttpRequestMessage requestMessage, RestHeader header)
@@ -76,7 +96,7 @@ namespace Rest.Json
             }
         }
 
-        private async Task<T> ExecuteAsync<T>(HttpRequestMessage request)
+        private async Task<T> ProcessAsync<T>(HttpRequestMessage request, bool returnValue)
 		{
             if (!string.IsNullOrEmpty(_baseAddress))
             {
@@ -112,6 +132,9 @@ namespace Rest.Json
 
 			        throw new RestException(response.StatusCode, response, errorContent);
                 }
+
+                if (!returnValue)
+                    return default(T);
 
                 if (response.StatusCode == HttpStatusCode.NoContent)
                     return default(T);
@@ -173,7 +196,7 @@ namespace Rest.Json
 
         public async Task SendAsync(HttpRequestMessage request)
         {
-            await ExecuteAsync<object>(request);
+            await ExecuteAsync(request);
         }
 
 
@@ -194,7 +217,7 @@ namespace Rest.Json
 
 	    public async Task GetAsync(string address, params RestHeader[] headers)
 	    {
-	        await ExecuteAsync<object>(HttpMethod.Get, address, null, headers);
+	        await ExecuteAsync(HttpMethod.Get, address, null, headers);
 	    }
 
 
@@ -217,7 +240,7 @@ namespace Rest.Json
 
         public async Task PostAsync(string address, object content, params RestHeader[] headers)
 		{
-			await ExecuteAsync<object>(HttpMethod.Post, address, content, headers);
+			await ExecuteAsync(HttpMethod.Post, address, content, headers);
 		}
 
 
@@ -240,7 +263,7 @@ namespace Rest.Json
 
 		public async Task PutAsync(string address, object content, params RestHeader[] headers)
 		{
-			await ExecuteAsync<object>(HttpMethod.Put, address, content, headers);
+			await ExecuteAsync(HttpMethod.Put, address, content, headers);
 		}
 
 
@@ -263,7 +286,7 @@ namespace Rest.Json
 
         public async Task DeleteAsync(string address, params RestHeader[] headers)
         {
-            await ExecuteAsync<object>(HttpMethod.Delete, address, null, headers);
+            await ExecuteAsync(HttpMethod.Delete, address, null, headers);
         }
     }
 }
