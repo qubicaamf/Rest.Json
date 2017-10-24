@@ -119,5 +119,15 @@ namespace WebApplicationCore.Controllers
         {
             return Request.Headers["Date"];
         }
+
+        [HttpPost]
+        [Route("text")]
+        public string Text()
+        {
+            if (!Request.ContentType.StartsWith("text/plain"))
+                return null;
+
+            return Request.Body.ReadAsString();
+        }
     }
 }

@@ -413,5 +413,13 @@ namespace Rest.Json.Tests
             Assert.That(ex.Content, Is.Null);
             Assert.That(ex.Response, Is.Not.Null);
         }
+
+        [Test]
+        public async Task SendAndReceivePlainText()
+        {
+            var value = await _restClient.PostAsync<string>("api/test/text", "ciao");
+
+            Assert.That(value, Is.EqualTo("ciao"));
+        }
     }
 }
