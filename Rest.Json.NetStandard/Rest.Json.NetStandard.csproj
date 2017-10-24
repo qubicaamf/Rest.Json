@@ -5,10 +5,13 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RootNamespace>Rest.Json</RootNamespace>
     <Version>1.0.0.1</Version>
-    <Description>A simple, lightweight and mockable C# Rest client focused on JSON but works also with text and raw bytes, built upon HttpClient and Newtonsoft.Json.</Description>
+    <Description>A simple, lightweight and mockable C# Rest client focused on JSON but works also with plain text and raw bytes, built on top of HttpClient and Newtonsoft.Json.</Description>
     <Authors>QubicaAMF</Authors>
     <Company />
     <Product />
+    <PackageLicenseUrl>https://raw.githubusercontent.com/qubicaamf/Rest.Json/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/qubicaamf/Rest.Json</PackageProjectUrl>
+    <PackageTags>json</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
