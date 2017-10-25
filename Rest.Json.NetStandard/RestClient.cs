@@ -83,7 +83,7 @@ namespace Rest.Json
                     break;
 
                 case "Date":
-                    requestMessage.Headers.Date = DateTimeOffset.ParseExact(header.Value, "yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture);
+                    requestMessage.Headers.Date = DateTimeOffset.ParseExact(header.Value, "o", CultureInfo.InvariantCulture);
                     break;
 
                 case "Content-Type":

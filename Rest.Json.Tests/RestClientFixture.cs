@@ -210,13 +210,24 @@ namespace Rest.Json.Tests
         }
 
         [Test]
-        public async Task SetDateHeader()
+        public async Task SetDateHeaderWithDateTime()
         {
             var now = DateTime.Now;
 
             var value = await _restClient.GetAsync<string>("api/test/date", new RestDateHeader(now));
-
+            
             Assert.That(DateTime.Parse(value), Is.EqualTo(new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second)));
+        }
+
+        [Test]
+        public async Task SetDateHeaderWithDateTimeOffset()
+        {
+            var now = DateTime.Now;
+            var nowPlus4 = new DateTimeOffset(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second, TimeSpan.FromHours(4));
+
+            var value = await _restClient.GetAsync<string>("api/test/date", new RestDateHeader(nowPlus4));
+
+            Assert.That(DateTimeOffset.Parse(value), Is.EqualTo(nowPlus4));
         }
 
         [Test]

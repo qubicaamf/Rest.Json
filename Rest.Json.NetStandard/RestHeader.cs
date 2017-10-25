@@ -51,11 +51,11 @@ namespace Rest.Json
 
     public class RestDateHeader : RestHeader
     {
-        public RestDateHeader(DateTime dateTime) : base("Date", dateTime.ToString("yyyy-MM-ddTHH:mm:ss"))
+        public RestDateHeader(DateTime dateTime) : base("Date", dateTime.ToString("o"))
         {
         }
 
-        public RestDateHeader(DateTimeOffset dateTime) : base("Date", dateTime.ToString("yyyy-MM-ddTHH:mm:ss"))
+        public RestDateHeader(DateTimeOffset dateTime) : base("Date", dateTime.ToString("o"))
         {
         }
     }
