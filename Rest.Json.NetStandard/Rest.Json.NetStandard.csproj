@@ -11,7 +11,7 @@
     <Product />
     <PackageLicenseUrl>https://raw.githubusercontent.com/qubicaamf/Rest.Json/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/qubicaamf/Rest.Json</PackageProjectUrl>
-    <PackageTags>json</PackageTags>
+    <PackageTags>rest json</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
