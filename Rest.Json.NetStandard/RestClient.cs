@@ -16,8 +16,11 @@ namespace Rest.Json
         private readonly string _baseAddress;
         private readonly List<RestHeader> _defaultHeaders = new List<RestHeader>();
         public event Action<HttpRequestMessage> OnSendingRequest = message => { };
+		private HttpMessageHandler _customHttpMessageHandler;
 
-        public RestClient() : this(string.Empty)
+		public bool SkipSslValidation { get; set; }
+
+		public RestClient() : this(string.Empty)
 		{
 		}
 
@@ -29,6 +32,11 @@ namespace Rest.Json
         public RestClient(string baseAddress)
 		{
 			_baseAddress = baseAddress;
+		}
+
+		public void UseMessageHandler(HttpMessageHandler httpMessageHandler)
+		{
+			_customHttpMessageHandler = httpMessageHandler;
 		}
 
         private async Task ExecuteAsync(HttpMethod httpMethod, string address, object requestContent, params RestHeader[] headers)
@@ -98,70 +106,86 @@ namespace Rest.Json
 
         private async Task<T> ProcessAsync<T>(HttpRequestMessage request, bool returnValue)
 		{
-            if (!string.IsNullOrEmpty(_baseAddress))
-            {
-                var baseUri = _baseAddress.EndsWith("/") ? new Uri(_baseAddress) : new Uri(_baseAddress + "/");
+			if (!string.IsNullOrEmpty(_baseAddress))
+			{
+				var baseUri = _baseAddress.EndsWith("/") ? new Uri(_baseAddress) : new Uri(_baseAddress + "/");
 
-                var relativeUri = request.RequestUri != null ? request.RequestUri.ToString() : string.Empty;
-                if (relativeUri.StartsWith("/"))
-                    relativeUri = relativeUri.Remove(0, 1);
+				var relativeUri = request.RequestUri != null ? request.RequestUri.ToString() : string.Empty;
+				if (relativeUri.StartsWith("/"))
+					relativeUri = relativeUri.Remove(0, 1);
 
-                request.RequestUri = new Uri(baseUri, relativeUri);
-            }
+				request.RequestUri = new Uri(baseUri, relativeUri);
+			}
 
-            OnSendingRequest(request);
-            
-            using (var httpClient = new HttpClient(new HttpClientHandler { AllowAutoRedirect = false }))
-            {
-                HttpResponseMessage response = await httpClient.SendAsync(request);
+			OnSendingRequest(request);
 
-                if (typeof(T) == typeof(HttpResponseMessage))
-                    return (T)Convert.ChangeType(response, typeof(T));
+			using (var httpClient = new HttpClient(GetHttpMessageHandler()))
+			{
+				HttpResponseMessage response = await httpClient.SendAsync(request);
 
-                if ((int) response.StatusCode >= 300)
-			    {
-			        dynamic errorContent = null;
-                    try
-			        {
-			            errorContent = await ReadJsonContent<dynamic>(response);
-			        }
-			        catch
-			        {
-			            // ignored
-			        }
+				if (typeof(T) == typeof(HttpResponseMessage))
+					return (T)Convert.ChangeType(response, typeof(T));
 
-			        throw new RestException(response.StatusCode, response, errorContent);
-                }
-
-                if (!returnValue)
-                    return default(T);
-
-                if (response.StatusCode == HttpStatusCode.NoContent)
-                    return default(T);
-                
-                if (typeof(T) == typeof(byte[]))
+				if ((int)response.StatusCode >= 300)
 				{
-					var contentBytes = await response.Content.ReadAsByteArrayAsync();
-					return (T) Convert.ChangeType(contentBytes, typeof(T));
+					dynamic errorContent = null;
+					try
+					{
+						errorContent = await ReadJsonContent<dynamic>(response);
+					}
+					catch
+					{
+						// ignored
+					}
+
+					throw new RestException(response.StatusCode, response, errorContent);
 				}
 
-                if (typeof(T) == typeof(string))
-                {
-                    var contentBytes = await response.Content.ReadAsStringAsync();
-                    return (T)Convert.ChangeType(contentBytes, typeof(T));
-                }
+				if (!returnValue)
+					return default(T);
 
-                if (string.IsNullOrEmpty(response.Content.Headers.ContentType?.MediaType))
-                    return default(T);
+				if (response.StatusCode == HttpStatusCode.NoContent)
+					return default(T);
 
-                if (!response.Content.Headers.ContentType.MediaType.Equals("application/json", StringComparison.InvariantCultureIgnoreCase))
-                    return default(T);
+				if (typeof(T) == typeof(byte[]))
+				{
+					var contentBytes = await response.Content.ReadAsByteArrayAsync();
+					return (T)Convert.ChangeType(contentBytes, typeof(T));
+				}
 
-                return await ReadJsonContent<T>(response);
+				if (typeof(T) == typeof(string))
+				{
+					var contentBytes = await response.Content.ReadAsStringAsync();
+					return (T)Convert.ChangeType(contentBytes, typeof(T));
+				}
+
+				if (string.IsNullOrEmpty(response.Content.Headers.ContentType?.MediaType))
+					return default(T);
+
+				if (!response.Content.Headers.ContentType.MediaType.Equals("application/json", StringComparison.InvariantCultureIgnoreCase))
+					return default(T);
+
+				return await ReadJsonContent<T>(response);
 			}
 		}
 
-	    private async Task<T> ReadJsonContent<T>(HttpResponseMessage response)
+		private HttpMessageHandler GetHttpMessageHandler()
+		{
+			if (_customHttpMessageHandler != null)
+				return _customHttpMessageHandler;
+
+			var httpClientHandler = new HttpClientHandler
+			{
+				AllowAutoRedirect = false
+			};
+
+			if (SkipSslValidation)
+				httpClientHandler.ServerCertificateCustomValidationCallback = (h, cert, x, s) => true;
+
+			return httpClientHandler;
+		}
+
+		private async Task<T> ReadJsonContent<T>(HttpResponseMessage response)
 	    {
 	        var contentStr = await response.Content.ReadAsStringAsync();
 
