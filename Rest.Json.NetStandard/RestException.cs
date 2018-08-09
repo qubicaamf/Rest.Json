@@ -10,13 +10,15 @@ namespace Rest.Json
 {
 	public class RestException : Exception
 	{
-	    public HttpStatusCode StatusCode { get; }
-        public HttpResponseMessage Response { get; }
+		public HttpStatusCode StatusCode => Response.StatusCode;
+		public HttpRequestMessage Request { get; }
+		public HttpResponseMessage Response { get; }
         public dynamic Content { get; }
 
-        public RestException(HttpStatusCode statusCode, HttpResponseMessage response, dynamic content) : base($"{statusCode} ({(int)statusCode}), Reason: {response.ReasonPhrase}")
+        internal RestException(HttpRequestMessage request, HttpResponseMessage response, dynamic content)
+	        : base($"{request.RequestUri} => {response.StatusCode} ({(int)response.StatusCode}), Reason: {response.ReasonPhrase}")
         {
-            StatusCode = statusCode;
+	        Request = request;
             Response = response;
             Content = content;
         }

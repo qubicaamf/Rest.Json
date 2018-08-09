@@ -126,7 +126,7 @@ namespace Rest.Json
 				if (typeof(T) == typeof(HttpResponseMessage))
 					return (T)Convert.ChangeType(response, typeof(T));
 
-				if ((int)response.StatusCode >= 300)
+				if (!response.IsSuccessStatusCode)
 				{
 					dynamic errorContent = null;
 					try
@@ -138,7 +138,7 @@ namespace Rest.Json
 						// ignored
 					}
 
-					throw new RestException(response.StatusCode, response, errorContent);
+					throw new RestException(request, response, errorContent);
 				}
 
 				if (!returnValue)
