@@ -16,6 +16,9 @@ namespace Rest.Json
         public dynamic Content { get; }
 		public string ContentAsString { get; }
 
+		public RestException()
+		{ }
+
 		public RestException(HttpRequestMessage request, HttpResponseMessage response, string contentStr, dynamic content)
 	        : base($"{request.RequestUri} => {response.StatusCode} ({(int)response.StatusCode}), Reason: {response.ReasonPhrase}")
         {
