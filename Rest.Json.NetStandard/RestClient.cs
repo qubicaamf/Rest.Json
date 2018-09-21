@@ -128,17 +128,7 @@ namespace Rest.Json
 
 				if (!response.IsSuccessStatusCode)
 				{
-					dynamic errorContent = null;
-					try
-					{
-						errorContent = await ReadJsonContent<dynamic>(response);
-					}
-					catch
-					{
-						// ignored
-					}
-
-					throw new RestException(request, response, errorContent);
+					throw await BuildRestExcetpion(request, response);
 				}
 
 				if (!returnValue)
@@ -167,6 +157,26 @@ namespace Rest.Json
 
 				return await ReadJsonContent<T>(response);
 			}
+		}
+
+		private async Task<RestException> BuildRestExcetpion(HttpRequestMessage request, HttpResponseMessage response)
+		{
+			string errorContentString = null;
+			dynamic errorContent = null;
+			try
+			{
+				errorContentString = await response.Content.ReadAsStringAsync();
+
+				if (!string.IsNullOrEmpty(errorContentString))
+				{
+					errorContent = JsonConvert.DeserializeObject<ExpandoObject>(errorContentString);
+				}
+			}
+			catch
+			{
+			}
+
+			throw new RestException(request, response, errorContentString, errorContent);
 		}
 
 		private HttpMessageHandler GetHttpMessageHandler()

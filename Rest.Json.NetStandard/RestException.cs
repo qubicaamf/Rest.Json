@@ -14,13 +14,15 @@ namespace Rest.Json
 		public HttpRequestMessage Request { get; }
 		public HttpResponseMessage Response { get; }
         public dynamic Content { get; }
+		public string ContentAsString { get; }
 
-        internal RestException(HttpRequestMessage request, HttpResponseMessage response, dynamic content)
+		public RestException(HttpRequestMessage request, HttpResponseMessage response, string contentStr, dynamic content)
 	        : base($"{request.RequestUri} => {response.StatusCode} ({(int)response.StatusCode}), Reason: {response.ReasonPhrase}")
         {
 	        Request = request;
             Response = response;
             Content = content;
+	        ContentAsString = contentStr;
         }
     }
 }

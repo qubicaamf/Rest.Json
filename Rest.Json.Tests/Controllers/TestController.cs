@@ -69,7 +69,19 @@ namespace WebApplicationCore.Controllers
             });
         }
 
-        [HttpPost, HttpPut]
+	    [HttpGet]
+	    [Route("errorashtml")]
+	    public IActionResult ErrorAsHtml()
+	    {
+		    return new ContentResult()
+		    {
+			    Content = "<html><body>bad request</body></html>",
+			    ContentType = "application/xml",
+			    StatusCode = 400
+		    };
+	    }
+
+		[HttpPost, HttpPut]
         [Route("textecho")]
         public IActionResult TextEcho()
         {

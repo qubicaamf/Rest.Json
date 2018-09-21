@@ -99,7 +99,8 @@ namespace Rest.Json.Tests
             Console.WriteLine("RestException: " + ex.Message);
             Assert.That(ex.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
             Assert.That(ex.Content, Is.Null);
-            Assert.That(ex.Response, Is.Not.Null);
+	        Assert.That(ex.ContentAsString, Is.EqualTo(string.Empty));
+			Assert.That(ex.Response, Is.Not.Null);
         }
 
         [Test]
@@ -111,9 +112,21 @@ namespace Rest.Json.Tests
             Assert.That(ex.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
             Assert.That(ex.Content.Error.Code, Is.EqualTo("MyErrorCode"));
             Assert.That(ex.Content.Error.Message, Is.EqualTo("MyErrorMessage"));
+			Assert.That(ex.ContentAsString, Is.EqualTo("{\"Error\":{\"Code\":\"MyErrorCode\",\"Message\":\"MyErrorMessage\"}}"));
         }
 
-        [Test]
+	    [Test]
+	    public void ReturnExceptionOnHtmlError()
+	    {
+		    var ex = Assert.Throws<RestException>(() => _restClient.Get("api/test/errorashtml"));
+
+		    Console.WriteLine("RestException: " + ex.Message);
+		    Assert.That(ex.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+			Assert.That(ex.Content, Is.Null);
+			Assert.That(ex.ContentAsString, Is.EqualTo("<html><body>bad request</body></html>"));
+	    }
+
+		[Test]
         public async Task PostAsync()
         {
             await _restClient.PostAsync("api/test", new TestModel { Id = 3, Name = "Paperino" });
