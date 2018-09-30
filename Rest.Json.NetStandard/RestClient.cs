@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Dynamic;
 using System.Net;
-using System.Globalization;
 
 namespace Rest.Json
 {
@@ -39,27 +38,7 @@ namespace Rest.Json
 			_customHttpMessageHandler = httpMessageHandler;
 		}
 
-        private async Task ExecuteAsync(HttpMethod httpMethod, string address, object requestContent, params RestHeader[] headers)
-        {
-            await ProcessAsync<object>(httpMethod, address, requestContent, headers, false);
-        }
-
-        private async Task<T> ExecuteAsync<T>(HttpMethod httpMethod, string address, object requestContent, params RestHeader[] headers)
-        {
-            return await ProcessAsync<T>(httpMethod, address, requestContent, headers, true);
-        }
-
-        private async Task ExecuteAsync(HttpRequestMessage request)
-        {
-            await ProcessAsync<object>(request, false);
-        }
-
-        private async Task<T> ExecuteAsync<T>(HttpRequestMessage request)
-        {
-            return await ProcessAsync<T>(request, true);
-        }
-
-        private async Task<T> ProcessAsync<T>(HttpMethod httpMethod, string address, object requestContent, RestHeader[] headers, bool returnValue)
+        private HttpRequestMessage CreateRequest(HttpMethod httpMethod, string address, object requestContent, RestHeader[] headers)
         {
             var request = new HttpRequestMessage(httpMethod, address);
             
@@ -79,7 +58,7 @@ namespace Rest.Json
             foreach (var header in headers)
                 AddHeader(request, header);
 
-            return await ProcessAsync<T>(request, returnValue);
+            return request;
         }
 
         private void AddHeader(HttpRequestMessage requestMessage, RestHeader header)
@@ -104,7 +83,68 @@ namespace Rest.Json
             }
         }
 
-        private async Task<T> ProcessAsync<T>(HttpRequestMessage request, bool returnValue)
+        private async Task<T> ExecuteAsync<T>(HttpRequestMessage request, bool returnValue)
+		{
+			ApplyBaseUrl(request);
+			OnSendingRequest(request);
+
+			using (var httpClient = new HttpClient(GetHttpMessageHandler()))
+			{
+				HttpResponseMessage response = await httpClient.SendAsync(request);
+				return await ProcessResponseAsync<T>(request, returnValue, response);
+			}
+		}
+
+		private T Execute<T>(HttpRequestMessage request, bool returnValue)
+		{
+			ApplyBaseUrl(request);
+			OnSendingRequest(request);
+
+			using (var httpClient = new HttpClient(GetHttpMessageHandler()))
+			{
+				HttpResponseMessage response = httpClient.SendAsync(request).GetAwaiter().GetResult();
+				return ProcessResponseAsync<T>(request, returnValue, response).GetAwaiter().GetResult();
+			}
+		}
+
+		private async Task<T> ProcessResponseAsync<T>(HttpRequestMessage request, bool returnValue, HttpResponseMessage response)
+		{
+			if (typeof(T) == typeof(HttpResponseMessage))
+				return (T)Convert.ChangeType(response, typeof(T));
+
+			if (!response.IsSuccessStatusCode)
+			{
+				throw await BuildRestExcetpion(request, response);
+			}
+
+			if (!returnValue)
+				return default(T);
+
+			if (response.StatusCode == HttpStatusCode.NoContent)
+				return default(T);
+
+			if (typeof(T) == typeof(byte[]))
+			{
+				var contentBytes = await response.Content.ReadAsByteArrayAsync();
+				return (T)Convert.ChangeType(contentBytes, typeof(T));
+			}
+
+			if (typeof(T) == typeof(string))
+			{
+				var contentBytes = await response.Content.ReadAsStringAsync();
+				return (T)Convert.ChangeType(contentBytes, typeof(T));
+			}
+
+			if (string.IsNullOrEmpty(response.Content.Headers.ContentType?.MediaType))
+				return default(T);
+
+			if (!response.Content.Headers.ContentType.MediaType.Equals("application/json", StringComparison.InvariantCultureIgnoreCase))
+				return default(T);
+
+			return await ReadJsonContent<T>(response);
+		}
+
+		private void ApplyBaseUrl(HttpRequestMessage request)
 		{
 			if (!string.IsNullOrEmpty(_baseAddress))
 			{
@@ -115,47 +155,6 @@ namespace Rest.Json
 					relativeUri = relativeUri.Remove(0, 1);
 
 				request.RequestUri = new Uri(baseUri, relativeUri);
-			}
-
-			OnSendingRequest(request);
-
-			using (var httpClient = new HttpClient(GetHttpMessageHandler()))
-			{
-				HttpResponseMessage response = await httpClient.SendAsync(request);
-
-				if (typeof(T) == typeof(HttpResponseMessage))
-					return (T)Convert.ChangeType(response, typeof(T));
-
-				if (!response.IsSuccessStatusCode)
-				{
-					throw await BuildRestExcetpion(request, response);
-				}
-
-				if (!returnValue)
-					return default(T);
-
-				if (response.StatusCode == HttpStatusCode.NoContent)
-					return default(T);
-
-				if (typeof(T) == typeof(byte[]))
-				{
-					var contentBytes = await response.Content.ReadAsByteArrayAsync();
-					return (T)Convert.ChangeType(contentBytes, typeof(T));
-				}
-
-				if (typeof(T) == typeof(string))
-				{
-					var contentBytes = await response.Content.ReadAsStringAsync();
-					return (T)Convert.ChangeType(contentBytes, typeof(T));
-				}
-
-				if (string.IsNullOrEmpty(response.Content.Headers.ContentType?.MediaType))
-					return default(T);
-
-				if (!response.Content.Headers.ContentType.MediaType.Equals("application/json", StringComparison.InvariantCultureIgnoreCase))
-					return default(T);
-
-				return await ReadJsonContent<T>(response);
 			}
 		}
 
@@ -215,66 +214,74 @@ namespace Rest.Json
         //-- SEND -----------------------------------------------------------------------
         public T Send<T>(HttpRequestMessage request)
         {
-            return ExecuteAsync<T>(request).GetAwaiter().GetResult();
-        }
+			return Execute<T>(request, true);
+		}
 
         public async Task<T> SendAsync<T>(HttpRequestMessage request)
         {
-            return await ExecuteAsync<T>(request);
-        }
+			return await ExecuteAsync<T>(request, true);
+		}
 
         public void Send(HttpRequestMessage request)
         {
-            SendAsync(request).GetAwaiter().GetResult();
-        }
+			Execute<object>(request, false);
+		}
 
         public async Task SendAsync(HttpRequestMessage request)
         {
-            await ExecuteAsync(request);
-        }
+			await ExecuteAsync<object>(request, false);
+		}
 
 
         //-- GET -----------------------------------------------------------------------
         public T Get<T>(string address, params RestHeader[] headers)
 		{
-			return GetAsync<T>(address, headers).GetAwaiter().GetResult();
+			var request = CreateRequest(HttpMethod.Get, address, null, headers);
+			return Execute<T>(request, true);
 		}
 
 		public async Task<T> GetAsync<T>(string address, params RestHeader[] headers)
 		{
-			return await ExecuteAsync<T>(HttpMethod.Get, address, null, headers);
+			var request = CreateRequest(HttpMethod.Get, address, null, headers);
+			return await ExecuteAsync<T>(request, true);
 		}
 	    public void Get(string address, params RestHeader[] headers)
 	    {
-	        GetAsync(address, headers).GetAwaiter().GetResult();
-	    }
+			var request = CreateRequest(HttpMethod.Get, address, null, headers);
+			Execute<object>(request, false);
+		}
 
 	    public async Task GetAsync(string address, params RestHeader[] headers)
 	    {
-	        await ExecuteAsync(HttpMethod.Get, address, null, headers);
-	    }
+			var request = CreateRequest(HttpMethod.Get, address, null, headers);
+			await ExecuteAsync<object>(request, false);
+		}
 
 
 
         //-- POST -----------------------------------------------------------------------
         public T Post<T>(string address, object content, params RestHeader[] headers)
 		{
-			return PostAsync<T>(address, content, headers).GetAwaiter().GetResult();
+			var request = CreateRequest(HttpMethod.Post, address, content, headers);
+			return Execute<T>(request, true);
 		}
 
         public async Task<T> PostAsync<T>(string address, object content, params RestHeader[] headers)
 		{
-			return await ExecuteAsync<T>(HttpMethod.Post, address, content, headers);
+			var request = CreateRequest(HttpMethod.Post, address, content, headers);
+			return await ExecuteAsync<T>(request, true);
 		}
 
         public void Post(string address, object content, params RestHeader[] headers)
 		{
-			PostAsync(address, content, headers).GetAwaiter().GetResult();
+			var request = CreateRequest(HttpMethod.Post, address, content, headers);
+			Execute<object>(request, false);
 		}
 
         public async Task PostAsync(string address, object content, params RestHeader[] headers)
 		{
-			await ExecuteAsync(HttpMethod.Post, address, content, headers);
+			var request = CreateRequest(HttpMethod.Post, address, content, headers);
+			await ExecuteAsync<object>(request, false);
 		}
 
 
@@ -282,22 +289,26 @@ namespace Rest.Json
         //-- PUT -----------------------------------------------------------------------
         public T Put<T>(string address, object content, params RestHeader[] headers)
 		{
-			return PutAsync<T>(address, content, headers).GetAwaiter().GetResult();
+			var request = CreateRequest(HttpMethod.Put, address, content, headers);
+			return Execute<T>(request, true);
 		}
 
         public async Task<T> PutAsync<T>(string address, object content, params RestHeader[] headers)
 		{
-			return await ExecuteAsync<T>(HttpMethod.Put, address, content, headers);
+			var request = CreateRequest(HttpMethod.Put, address, content, headers);
+			return await ExecuteAsync<T>(request, true);
 		}
 
         public void Put(string address, object content, params RestHeader[] headers)
 		{
-			PutAsync(address, content, headers).GetAwaiter().GetResult();
+			var request = CreateRequest(HttpMethod.Put, address, content, headers);
+			Execute<object>(request, false);
 		}
 
 		public async Task PutAsync(string address, object content, params RestHeader[] headers)
 		{
-			await ExecuteAsync(HttpMethod.Put, address, content, headers);
+			var request = CreateRequest(HttpMethod.Put, address, content, headers);
+			await ExecuteAsync<object>(request, false);
 		}
 
 
@@ -305,22 +316,26 @@ namespace Rest.Json
         //-- DELETE -----------------------------------------------------------------------
         public T Delete<T>(string address, params RestHeader[] headers)
         {
-            return DeleteAsync<T>(address, headers).GetAwaiter().GetResult();
-        }
+			var request = CreateRequest(HttpMethod.Delete, address, null, headers);
+			return Execute<T>(request, true);
+		}
 
         public async Task<T> DeleteAsync<T>(string address, params RestHeader[] headers)
         {
-            return await ExecuteAsync<T>(HttpMethod.Delete, address, null, headers);
-        }
+			var request = CreateRequest(HttpMethod.Delete, address, null, headers);
+			return await ExecuteAsync<T>(request, true);
+		}
 
         public void Delete(string address, params RestHeader[] headers)
         {
-            DeleteAsync(address, headers).GetAwaiter().GetResult();
-        }
+			var request = CreateRequest(HttpMethod.Delete, address, null, headers);
+			Execute<object>(request, false);
+		}
 
         public async Task DeleteAsync(string address, params RestHeader[] headers)
         {
-            await ExecuteAsync(HttpMethod.Delete, address, null, headers);
-        }
+			var request = CreateRequest(HttpMethod.Delete, address, null, headers);
+			await ExecuteAsync<object>(request, false);
+		}
     }
 }
