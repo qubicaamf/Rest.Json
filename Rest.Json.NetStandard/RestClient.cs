@@ -17,7 +17,10 @@ namespace Rest.Json
         public event Action<HttpRequestMessage> OnSendingRequest = message => { };
 		private HttpMessageHandler _customHttpMessageHandler;
 
+#if NETSTANDARD2_0
 		public bool SkipSslValidation { get; set; }
+#endif
+
 
 		public RestClient() : this(string.Empty)
 		{
@@ -188,8 +191,11 @@ namespace Rest.Json
 				AllowAutoRedirect = false
 			};
 
+
+#if NETSTANDARD2_0
 			if (SkipSslValidation)
 				httpClientHandler.ServerCertificateCustomValidationCallback = (h, cert, x, s) => true;
+#endif
 
 			return httpClientHandler;
 		}
