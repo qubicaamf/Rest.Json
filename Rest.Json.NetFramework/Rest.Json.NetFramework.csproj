@@ -55,6 +55,9 @@
     <Compile Include="..\Rest.Json.NetStandard\RestHeader.cs">
       <Link>RestHeader.cs</Link>
     </Compile>
+    <Compile Include="..\Rest.Json.NetStandard\RestResponse.cs">
+      <Link>RestResponse.cs</Link>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

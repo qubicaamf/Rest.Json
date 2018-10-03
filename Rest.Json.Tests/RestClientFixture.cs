@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore;
 using Rest.Json.Tests.Models;
 using System.Globalization;
+using System.Linq;
 
 namespace Rest.Json.Tests
 {
@@ -445,5 +446,31 @@ namespace Rest.Json.Tests
 
             Assert.That(value, Is.EqualTo("ciao"));
         }
-    }
+
+		[Test]
+		public async Task GetRestResponseAsync()
+		{
+			var response = await _restClient.GetAsync<IRestResponse>("api/test/1");
+
+			Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+			Assert.That(response.Headers.GetValues("x-name").First(), Is.EqualTo("gino"));
+
+			var model = await response.ContentAsync<TestModel>();
+
+			Assert.That(model, Is.EqualTo(new TestModel { Id = 1, Name = "Gino" }));
+		}
+
+		[Test]
+		public void GetRestResponse()
+		{
+			var response = _restClient.Get<IRestResponse>("api/test/1");
+
+			Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+			Assert.That(response.Headers.GetValues("x-name").First(), Is.EqualTo("gino"));
+
+			var model = response.Content<TestModel>();
+
+			Assert.That(model, Is.EqualTo(new TestModel { Id = 1, Name = "Gino" }));
+		}
+	}
 }

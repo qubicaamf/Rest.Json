@@ -31,6 +31,8 @@ namespace WebApplicationCore.Controllers
         [HttpGet("{id}")]
         public TestModel Get(int id)
         {
+			Response.Headers.Add("x-name", "gino");
+
             return _models.First(m => m.Id == id);
         }
 
