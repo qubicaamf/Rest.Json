@@ -27,17 +27,25 @@ namespace Rest.Json
 
 
         //-- POST -----------------------------------------------------------------------
-        T Post<T>(string address, object content, params RestHeader[] headers);
-        Task<T> PostAsync<T>(string address, object content, params RestHeader[] headers);
-        void Post(string address, object content, params RestHeader[] headers);
-        Task PostAsync(string address, object content, params RestHeader[] headers);
+        T Post<T>(string address, params RestHeader[] headers);
+		T Post<T>(string address, object content, params RestHeader[] headers);
+		Task<T> PostAsync<T>(string address, params RestHeader[] headers);
+		Task<T> PostAsync<T>(string address, object content, params RestHeader[] headers);
+		void Post(string address, params RestHeader[] headers);
+		void Post(string address, object content, params RestHeader[] headers);
+		Task PostAsync(string address, params RestHeader[] headers);
+		Task PostAsync(string address, object content, params RestHeader[] headers);
 
 
-        //-- PUT -----------------------------------------------------------------------
-        T Put<T>(string address, object content, params RestHeader[] headers);
-        Task<T> PutAsync<T>(string address, object content, params RestHeader[] headers);
-        void Put(string address, object content, params RestHeader[] headers);
-        Task PutAsync(string address, object content, params RestHeader[] headers);
+		//-- PUT -----------------------------------------------------------------------
+		T Put<T>(string address, params RestHeader[] headers);
+		T Put<T>(string address, object content, params RestHeader[] headers);
+		Task<T> PutAsync<T>(string address, params RestHeader[] headers);
+		Task<T> PutAsync<T>(string address, object content, params RestHeader[] headers);
+		void Put(string address, params RestHeader[] headers);
+		void Put(string address, object content, params RestHeader[] headers);
+		Task PutAsync(string address, params RestHeader[] headers);
+		Task PutAsync(string address, object content, params RestHeader[] headers);
 
 
         //-- DELETE -----------------------------------------------------------------------
