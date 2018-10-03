@@ -508,6 +508,7 @@ namespace Rest.Json.Tests
 		{
 			var response = await _restClient.GetAsync<IRestResponse>("api/test/1");
 
+			Assert.That(response.IsSuccessStatusCode, Is.True);
 			Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
 			Assert.That(response.Headers.GetValues("x-name").First(), Is.EqualTo("gino"));
 
@@ -521,6 +522,7 @@ namespace Rest.Json.Tests
 		{
 			var response = _restClient.Get<IRestResponse>("api/test/1");
 
+			Assert.That(response.IsSuccessStatusCode, Is.True);
 			Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
 			Assert.That(response.Headers.GetValues("x-name").First(), Is.EqualTo("gino"));
 

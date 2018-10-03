@@ -12,6 +12,7 @@ namespace Rest.Json
 {
 	public interface IRestResponse
 	{
+		bool IsSuccessStatusCode { get; }
 		HttpStatusCode StatusCode { get; }
 		HttpResponseHeaders Headers { get; }
 		HttpResponseMessage HttpResponse { get; }
@@ -33,9 +34,9 @@ namespace Rest.Json
 			_response = response;
 		}
 
+		public bool IsSuccessStatusCode => _response.IsSuccessStatusCode;
 		public HttpStatusCode StatusCode => _response.StatusCode;
 		public HttpResponseHeaders Headers => _response.Headers;
-
 		public HttpResponseMessage HttpResponse => _response;
 
 		public T Content<T>()
