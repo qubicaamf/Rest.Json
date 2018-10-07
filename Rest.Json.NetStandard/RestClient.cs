@@ -95,12 +95,12 @@ namespace Rest.Json
 			{
 				HttpResponseMessage response = await httpClient.SendAsync(request);
 
-				IRestResponse restResponse = new RestResponse(request, returnValue, response);
+				var restResponse = new RestResponse(request, returnValue, response);
 
 				if (typeof(T) == typeof(IRestResponse))
-					return (T)restResponse;
+					return (T)(IRestResponse)restResponse;
 
-				return await restResponse.ContentAsync<T>();
+				return await restResponse.ProcessAsync<T>();
 			}
 		}
 
@@ -113,12 +113,12 @@ namespace Rest.Json
 			{
 				HttpResponseMessage response = httpClient.SendAsync(request).GetAwaiter().GetResult();
 
-				IRestResponse restResponse = new RestResponse(request, returnValue, response);
+				var restResponse = new RestResponse(request, returnValue, response);
 
 				if (typeof(T) == typeof(IRestResponse))
-					return (T)restResponse;
+					return (T)(IRestResponse)restResponse;
 
-				return restResponse.Content<T>();
+				return restResponse.Process<T>();
 			}
 		}
 
