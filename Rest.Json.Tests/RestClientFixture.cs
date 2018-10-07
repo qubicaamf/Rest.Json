@@ -133,13 +133,25 @@ namespace Rest.Json.Tests
             await _restClient.PostAsync("api/test", new TestModel { Id = 3, Name = "Paperino" });
         }
 
-        [Test]
+		[Test]
+		public async Task PostNoContentAsync()
+		{
+			await _restClient.PostAsync("api/test/nocontent");
+		}
+
+		[Test]
         public void Post()
         {
             _restClient.Post("api/test", new TestModel { Id = 3, Name = "Paperino" });
         }
 
-        [Test]
+		[Test]
+		public void PostNoContent()
+		{
+			_restClient.Post("api/test/nocontent");
+		}
+
+		[Test]
         public void PostAndReturnRawBytes()
         {
             var bytesToSend = Encoding.UTF8.GetBytes("ciaone");
@@ -157,7 +169,15 @@ namespace Rest.Json.Tests
             Assert.That(response, Is.EqualTo(new TestModel { Id = 3, Name = "Paperino" }));
         }
 
-        [Test]
+		[Test]
+		public async Task PostNoContentAsyncWithReturn()
+		{
+			var response = await _restClient.PostAsync<TestModel>("api/test/nocontent");
+
+			Assert.That(response, Is.EqualTo(new TestModel { Id = 1, Name = "Gino" }));
+		}
+
+		[Test]
         public void PostWithReturn()
         {
             var response = _restClient.Post<TestModel>("api/test", new TestModel { Id = 3, Name = "Paperino" });
@@ -165,19 +185,39 @@ namespace Rest.Json.Tests
             Assert.That(response, Is.EqualTo(new TestModel { Id = 3, Name = "Paperino" }));
         }
 
-        [Test]
+		[Test]
+		public void PostNoContentWithReturn()
+		{
+			var response = _restClient.Post<TestModel>("api/test/nocontent");
+
+			Assert.That(response, Is.EqualTo(new TestModel { Id = 1, Name = "Gino" }));
+		}
+
+		[Test]
         public async Task PutAsync()
         {
             await _restClient.PutAsync("api/test/1", new TestModel { Id = 1, Name = "Gino" });
         }
 
-        [Test]
+		[Test]
+		public async Task PutNoContentAsync()
+		{
+			await _restClient.PutAsync("api/test/1/nocontent");
+		}
+
+		[Test]
         public void Put()
         {
             _restClient.Put("api/test/1", new TestModel { Id = 1, Name = "Gino" });
         }
 
-        [Test]
+		[Test]
+		public void PutNoContent()
+		{
+			_restClient.Put("api/test/1/nocontent");
+		}
+
+		[Test]
         public async Task PutAsyncWithReturn()
         {
             var response = await _restClient.PutAsync<TestModel>("api/test/1", new TestModel { Id = 1, Name = "Gino" });
@@ -185,7 +225,15 @@ namespace Rest.Json.Tests
             Assert.That(response, Is.EqualTo(new TestModel { Id = 1, Name = "Gino" }));
         }
 
-        [Test]
+		[Test]
+		public async Task PutNoContentAsyncWithReturn()
+		{
+			var response = await _restClient.PutAsync<TestModel>("api/test/1/nocontent");
+
+			Assert.That(response, Is.EqualTo(new TestModel { Id = 1, Name = "Gino" }));
+		}
+
+		[Test]
         public void PutWithReturn()
         {
             var response = _restClient.Put<TestModel>("api/test/1", new TestModel { Id = 1, Name = "Gino" });
@@ -193,7 +241,15 @@ namespace Rest.Json.Tests
             Assert.That(response, Is.EqualTo(new TestModel { Id = 1, Name = "Gino" }));
         }
 
-        [Test]
+		[Test]
+		public void PutNoContentWithReturn()
+		{
+			var response = _restClient.Put<TestModel>("api/test/1/nocontent");
+
+			Assert.That(response, Is.EqualTo(new TestModel { Id = 1, Name = "Gino" }));
+		}
+
+		[Test]
         public void PutBytes()
         {
             var bytes = Encoding.UTF8.GetBytes("ciaone");
@@ -452,6 +508,7 @@ namespace Rest.Json.Tests
 		{
 			var response = await _restClient.GetAsync<IRestResponse>("api/test/1");
 
+			Assert.That(response.IsSuccessStatusCode, Is.True);
 			Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
 			Assert.That(response.Headers.GetValues("x-name").First(), Is.EqualTo("gino"));
 
@@ -465,6 +522,7 @@ namespace Rest.Json.Tests
 		{
 			var response = _restClient.Get<IRestResponse>("api/test/1");
 
+			Assert.That(response.IsSuccessStatusCode, Is.True);
 			Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
 			Assert.That(response.Headers.GetValues("x-name").First(), Is.EqualTo("gino"));
 

@@ -211,50 +211,89 @@ namespace Rest.Json
 
 
 
-        //-- POST -----------------------------------------------------------------------
-        public T Post<T>(string address, object content, params RestHeader[] headers)
+		//-- POST -----------------------------------------------------------------------
+		public T Post<T>(string address, params RestHeader[] headers)
+		{
+			return Post<T>(address, null, headers);
+		}
+
+		public T Post<T>(string address, object content, params RestHeader[] headers)
 		{
 			var request = CreateRequest(HttpMethod.Post, address, content, headers);
 			return Execute<T>(request, true);
 		}
 
-        public async Task<T> PostAsync<T>(string address, object content, params RestHeader[] headers)
+		public async Task<T> PostAsync<T>(string address, params RestHeader[] headers)
+		{
+			return await PostAsync<T>(address, null, headers);
+		}
+
+		public async Task<T> PostAsync<T>(string address, object content, params RestHeader[] headers)
 		{
 			var request = CreateRequest(HttpMethod.Post, address, content, headers);
 			return await ExecuteAsync<T>(request, true);
 		}
 
-        public void Post(string address, object content, params RestHeader[] headers)
+		public void Post(string address, params RestHeader[] headers)
+		{
+			Post(address, null, headers);
+		}
+
+		public void Post(string address, object content, params RestHeader[] headers)
 		{
 			var request = CreateRequest(HttpMethod.Post, address, content, headers);
 			Execute<object>(request, false);
 		}
 
-        public async Task PostAsync(string address, object content, params RestHeader[] headers)
+		public async Task PostAsync(string address, params RestHeader[] headers)
+		{
+			await PostAsync(address, null, headers);
+		}
+
+		public async Task PostAsync(string address, object content, params RestHeader[] headers)
 		{
 			var request = CreateRequest(HttpMethod.Post, address, content, headers);
 			await ExecuteAsync<object>(request, false);
 		}
 
 
+		//-- PUT -----------------------------------------------------------------------
+		public T Put<T>(string address, params RestHeader[] headers)
+		{
+			return Put<T>(address, null, headers);
+		}
 
-        //-- PUT -----------------------------------------------------------------------
-        public T Put<T>(string address, object content, params RestHeader[] headers)
+		public T Put<T>(string address, object content, params RestHeader[] headers)
 		{
 			var request = CreateRequest(HttpMethod.Put, address, content, headers);
 			return Execute<T>(request, true);
 		}
 
-        public async Task<T> PutAsync<T>(string address, object content, params RestHeader[] headers)
+		public async Task<T> PutAsync<T>(string address, params RestHeader[] headers)
+		{
+			return await PutAsync<T>(address, null, headers);
+		}
+
+		public async Task<T> PutAsync<T>(string address, object content, params RestHeader[] headers)
 		{
 			var request = CreateRequest(HttpMethod.Put, address, content, headers);
 			return await ExecuteAsync<T>(request, true);
 		}
 
-        public void Put(string address, object content, params RestHeader[] headers)
+		public void Put(string address, params RestHeader[] headers)
+		{
+			Put(address, null, headers);
+		}
+
+		public void Put(string address, object content, params RestHeader[] headers)
 		{
 			var request = CreateRequest(HttpMethod.Put, address, content, headers);
 			Execute<object>(request, false);
+		}
+
+		public async Task PutAsync(string address, params RestHeader[] headers)
+		{
+			await PutAsync(address, null, headers);
 		}
 
 		public async Task PutAsync(string address, object content, params RestHeader[] headers)

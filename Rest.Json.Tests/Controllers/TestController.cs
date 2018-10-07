@@ -42,13 +42,25 @@ namespace WebApplicationCore.Controllers
             return model;
         }
 
-        [HttpPut("{id}")]
+		[HttpPost("nocontent")]
+		public TestModel Post()
+		{
+			return new TestModel { Id = 1, Name = "Gino" };
+		}
+
+		[HttpPut("{id}")]
         public TestModel Put(int id, [FromBody]TestModel model)
         {
             return model;
         }
 
-        [HttpDelete("{id}")]
+		[HttpPut("{id}/nocontent")]
+		public TestModel Put(int id)
+		{
+			return new TestModel { Id = id, Name = "Gino" };
+		}
+
+		[HttpDelete("{id}")]
         public void Delete(int id, int? errorCode = null)
         {
             if (errorCode.HasValue)
