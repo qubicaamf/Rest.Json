@@ -530,5 +530,122 @@ namespace Rest.Json.Tests
 
 			Assert.That(model, Is.EqualTo(new TestModel { Id = 1, Name = "Gino" }));
 		}
+
+		[Test]
+		public async Task GetXmlAsync()
+		{
+			var model = await _restClient.GetAsync<TestModel>("api/test/1", new RestHeader("Accept", "application/xml"));
+
+			Assert.That(model, Is.EqualTo(new TestModel { Id = 1, Name = "Gino" }));
+		}
+
+		[Test]
+		public async Task PostXmlAsync()
+		{
+			await _restClient.PostAsync("api/test", new TestModel { Id = 3, Name = "Paperino" },
+				new RestContentTypeHeader("application/xml"));
+		}
+
+		[Test]
+		public async Task PostXmlAsyncWithReturn()
+		{
+			var response = await _restClient.PostAsync<TestModel>("api/test", new TestModel { Id = 3, Name = "Paperino" },
+				new RestContentTypeHeader("application/xml"),
+				new RestHeader("Accept", "application/xml"));
+
+			Assert.That(response, Is.EqualTo(new TestModel { Id = 3, Name = "Paperino" }));
+		}
+
+		[Test]
+		public void PostXmlAsyncWithDynamicIsNotSupported()
+		{
+			var ex = Assert.ThrowsAsync<ArgumentException>(() => _restClient.PostAsync("api/test", new { Id = 3, Name = "Paperino" },
+				new RestContentTypeHeader("application/xml")));
+		}
+
+		[Test]
+		public void PostXmlAsyncWithDynamicReturnIsNotSupported()
+		{
+			var ex = Assert.ThrowsAsync<ArgumentException>(() => _restClient.PostAsync<dynamic>("api/test", new TestModel { Id = 3, Name = "Paperino" },
+				new RestContentTypeHeader("application/xml"),
+				new RestHeader("Accept", "application/xml")));
+		}
+
+		[Test]
+		public async Task PostAsyncWithDifferentEncoding()
+		{
+			//charset default is utf-8
+
+			await _restClient.PostAsync("api/test", new TestModel { Id = 3, Name = "Paperino" },
+				new RestContentTypeHeader("application/xml; charset=utf-16"));
+
+			await _restClient.PostAsync("api/test", new TestModel { Id = 3, Name = "Paperino" },
+				new RestContentTypeHeader("application/xml", "utf-16"));
+
+			await _restClient.PostAsync("api/test", new TestModel { Id = 3, Name = "Paperino" },
+				new RestContentTypeHeader("application/xml", Encoding.Unicode));
+
+			await _restClient.PostAsync("api/test", new TestModel { Id = 3, Name = "Paperino" },
+				new RestContentTypeHeader("application/json; charset=utf-16"));
+
+			await _restClient.PostAsync("api/test", new TestModel { Id = 3, Name = "Paperino" },
+				new RestContentTypeHeader("application/json", "utf-16"));
+
+			await _restClient.PostAsync("api/test", new TestModel { Id = 3, Name = "Paperino" },
+				new RestContentTypeHeader("application/json", Encoding.Unicode));
+		}
+
+		[Test]
+		public void ConvertToXml()
+		{
+			var model = new TestModel { Id = 3, Name = "Paperino" };
+
+			var xml = SerializeObject(model);
+
+			Console.WriteLine(xml);
+		}
+
+		public static string SerializeObject(object value)
+		{
+			var serializer = new System.Xml.Serialization.XmlSerializer(value.GetType());
+			var sb = new StringBuilder();
+
+			using (System.IO.TextWriter writer = new ExtendedStringWriter(sb, "utf-8"))
+			{
+				serializer.Serialize(writer, value);
+			}
+
+			return sb.ToString();
+		}
+
+		public class ExtendedStringWriter : System.IO.StringWriter
+		{
+			private readonly Encoding _encoding;
+
+			public ExtendedStringWriter(StringBuilder stringBuilder, string encodingName)
+				: base(stringBuilder)
+			{
+				_encoding = Encoding.GetEncoding(encodingName);
+			}
+
+			public override Encoding Encoding => _encoding;
+		}
+
+		//public static string SerializeObject2(object value)
+		//{
+		//	System.Xml.XmlWriterSettings settings = new System.Xml.XmlWriterSettings();
+		//	settings.IndentChars = "\t";
+		//	settings.Indent = true;
+
+		//	using (System.IO.StringWriter sw = new System.IO.StringWriter())
+		//	using (System.Xml.XmlWriter xw = System.Xml.XmlWriter.Create(sw, settings))
+		//	{
+		//		new System.Xml.Serialization.XmlSerializer(value.GetType()).Serialize(xw, value, null, "utf-8");
+		//		string xml = sw.ToString();
+
+		//		return xml;
+		//	}
+
+		//}
 	}
 }

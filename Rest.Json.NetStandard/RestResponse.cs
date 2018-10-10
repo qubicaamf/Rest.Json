@@ -76,20 +76,10 @@ namespace Rest.Json
 				return (T)Convert.ChangeType(contentBytes, typeof(T));
 			}
 
-			if (typeof(T) == typeof(string))
-			{
-				var contentBytes = await _response.Content.ReadAsStringAsync();
-				return (T)Convert.ChangeType(contentBytes, typeof(T));
-			}
-
-			string contentType = _response.Content.Headers.ContentType?.MediaType;
-			if (string.IsNullOrEmpty(contentType))
-				return default(T);
-
-			if (!contentType.Equals("application/json", StringComparison.OrdinalIgnoreCase) && !contentType.Equals("application/xml", StringComparison.OrdinalIgnoreCase))
-				return default(T);
-
 			var contentStr = await _response.Content.ReadAsStringAsync();
+
+			if (typeof(T) == typeof(string))
+				return (T)Convert.ChangeType(contentStr, typeof(T));
 
 			return DeserializeContent<T>(contentStr);
 		}
@@ -116,10 +106,44 @@ namespace Rest.Json
 
 		private T DeserializeContent<T>(string contentStr)
 		{
-			if (typeof(T) == typeof(object))
-				return (dynamic)JsonConvert.DeserializeObject<ExpandoObject>(contentStr);
+			string mediaType = _response.Content.Headers.ContentType?.MediaType;
+			if (string.IsNullOrEmpty(mediaType))
+				return default(T);
 
-			return JsonConvert.DeserializeObject<T>(contentStr);
+			if (mediaType.IndexOf("json", StringComparison.OrdinalIgnoreCase) >= 0)
+				return DeserializeJsonContent<T>(contentStr);
+
+			if (mediaType.IndexOf("xml", StringComparison.OrdinalIgnoreCase) >= 0)
+				return DeserializeXmlContent<T>(contentStr);
+
+			return default(T);
+		}
+
+		private T DeserializeJsonContent<T>(string contentStr)
+		{
+			try
+			{
+				if (typeof(T) == typeof(object))
+				return (dynamic)JsonConvert.DeserializeObject<ExpandoObject>(contentStr);
+			
+				return JsonConvert.DeserializeObject<T>(contentStr);
+			}
+			catch (Exception ex)
+			{
+				throw new ArgumentException($"Return type {typeof(T)} can not be deserialize in JSON format", ex);
+			}
+		}
+
+		private T DeserializeXmlContent<T>(string contentStr)
+		{
+			try
+			{
+				return XmlConvert.DeserializeObject<T>(contentStr);
+			}
+			catch (Exception ex)
+			{
+				throw new ArgumentException($"Return type {typeof(T)} can not be deserialize in XML format", ex);
+			}
 		}
 	}
 }

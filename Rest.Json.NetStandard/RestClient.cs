@@ -5,8 +5,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using System.Dynamic;
-using System.Net;
+using System.Linq;
 
 namespace Rest.Json
 {
@@ -44,29 +43,102 @@ namespace Rest.Json
         private HttpRequestMessage CreateRequest(HttpMethod httpMethod, string address, object requestContent, RestHeader[] headers)
         {
             var request = new HttpRequestMessage(httpMethod, address);
-            
-            if (requestContent != null)
+
+			foreach (var defaultHeader in _defaultHeaders)
+				AddHeader(request, defaultHeader);
+
+			foreach (var header in headers)
+				AddHeader(request, header);
+
+			if (requestContent != null)
             {
-                if (requestContent.GetType() == typeof(byte[]))
-                    request.Content = new ByteArrayContent((byte[])requestContent);
-                else if (requestContent.GetType() == typeof(string))
-                    request.Content = new StringContent((string)requestContent, Encoding.UTF8, "text/plain");
+				var contentType = GetContentType(headers);
+
+				if (requestContent.GetType() == typeof(byte[]))
+				{
+					request.Content = new ByteArrayContent((byte[])requestContent);
+					if (contentType != null)
+						request.Content.Headers.ContentType = contentType;
+				}
+				else if (requestContent.GetType() == typeof(string))
+				{
+					Encoding encoding = Encoding.UTF8;
+					string mediaType = "text/plain";
+					if (contentType != null)
+					{
+						if (!string.IsNullOrEmpty(contentType.CharSet))
+							encoding = Encoding.GetEncoding(contentType.CharSet);
+
+						if (!string.IsNullOrEmpty(contentType.MediaType))
+							mediaType = contentType.MediaType;
+					}
+
+					request.Content = new StringContent((string)requestContent, encoding, mediaType);
+				}
+				else if (contentType != null && contentType.MediaType != null && contentType.MediaType.ToLower().Contains("xml"))
+				{
+					Encoding encoding = !string.IsNullOrEmpty(contentType.CharSet) ? Encoding.GetEncoding(contentType.CharSet) : Encoding.UTF8;
+
+					string xml;
+					try
+					{
+						xml = XmlConvert.SerializeObject(requestContent, encoding);
+					}
+					catch (Exception ex)
+					{
+						throw new ArgumentException($"Content type {requestContent.GetType()} can not be serialize in XML format", ex);
+					}
+					
+					request.Content = new StringContent(xml, encoding, contentType.MediaType);
+				}
                 else
-                    request.Content = new StringContent(JsonConvert.SerializeObject(requestContent, Formatting.Indented), Encoding.UTF8, "application/json");
-            }
+				{
+					Encoding encoding = Encoding.UTF8;
+					string mediaType = "application/json";
+					if (contentType != null)
+					{
+						if (!string.IsNullOrEmpty(contentType.CharSet))
+							encoding = Encoding.GetEncoding(contentType.CharSet);
 
-            foreach (var defaultHeader in _defaultHeaders)
-                AddHeader(request, defaultHeader);
+						if (!string.IsNullOrEmpty(contentType.MediaType))
+							mediaType = contentType.MediaType;
+					}
 
-            foreach (var header in headers)
-                AddHeader(request, header);
+					string json;
+					try
+					{
+						json = JsonConvert.SerializeObject(requestContent, Formatting.Indented);
+					}
+					catch (Exception ex)
+					{
+						throw new ArgumentException($"Content type {requestContent.GetType()} can not be serialize in JSON format", ex);
+					}
+					
+					request.Content = new StringContent(json, encoding, mediaType);
+				}
+
+				
+			}
 
             return request;
         }
 
-        private void AddHeader(HttpRequestMessage requestMessage, RestHeader header)
+		private MediaTypeHeaderValue GetContentType(RestHeader[] headers)
+		{
+			var contentTypeHeader = _defaultHeaders.FirstOrDefault(h => h.Key == "Content-Type");
+			if (contentTypeHeader != null)
+				return MediaTypeHeaderValue.Parse(contentTypeHeader.Value);
+
+			contentTypeHeader = headers.FirstOrDefault(h => h.Key == "Content-Type");
+			if (contentTypeHeader != null)
+				return MediaTypeHeaderValue.Parse(contentTypeHeader.Value);
+
+			return null;
+		}
+
+		private void AddHeader(HttpRequestMessage requestMessage, RestHeader header)
         {
-            switch (header.Key)
+			switch (header.Key)
             {
                 case "Authorization":
                     requestMessage.Headers.Authorization = AuthenticationHeaderValue.Parse(header.Value);
@@ -77,7 +149,6 @@ namespace Rest.Json
                     break;
 
                 case "Content-Type":
-                    requestMessage.Content.Headers.ContentType = MediaTypeHeaderValue.Parse(header.Value);
                     break;
 
                 default:

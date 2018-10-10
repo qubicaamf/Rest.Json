@@ -40,7 +40,15 @@ namespace Rest.Json
         public RestContentTypeHeader(string value) : base("Content-Type", value)
         {
         }
-    }
+
+		public RestContentTypeHeader(string mediaType, string charset) : this($"{mediaType}; charset={charset}")
+		{
+		}
+
+		public RestContentTypeHeader(string mediaType, Encoding charset) : this(mediaType, charset.WebName)
+		{
+		}
+	}
 
     public class RestAuthHeader : RestHeader
     {
