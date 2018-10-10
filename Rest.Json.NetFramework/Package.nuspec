@@ -5,7 +5,7 @@
 		
 		<id>Rest.Json.NetFramework</id>
 		<version>1.0.0.1</version>
-		<description>A simple, lightweight and mockable C# Rest client focused on JSON but works also with plain text and raw bytes, built on top of HttpClient and Newtonsoft.Json.</description>
+		<description>A simple, lightweight and mockable C# Rest client focused on JSON but works also with XML, plain text and raw bytes, built on top of HttpClient, Newtonsoft.Json and XmlSerializer.</description>
 		<authors>QubicaAMF</authors>
 
     <projectUrl>https://github.com/qubicaamf/Rest.Json</projectUrl>
