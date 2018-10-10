@@ -13,19 +13,19 @@ namespace Rest.Json
 		public HttpStatusCode StatusCode => Response.StatusCode;
 		public HttpRequestMessage Request { get; }
 		public HttpResponseMessage Response { get; }
-        public dynamic Content { get; }
+		public dynamic Content { get; }
 		public string ContentAsString { get; }
 
 		public RestException()
 		{ }
 
 		public RestException(HttpRequestMessage request, HttpResponseMessage response, string contentStr, dynamic content)
-	        : base($"{request.RequestUri} => {response.StatusCode} ({(int)response.StatusCode}), Reason: {response.ReasonPhrase}")
-        {
-	        Request = request;
-            Response = response;
-            Content = content;
-	        ContentAsString = contentStr;
-        }
-    }
+			: base($"{request.RequestUri} => {response.StatusCode} ({(int)response.StatusCode}), Reason: {response.ReasonPhrase}")
+		{
+			Request = request;
+			Response = response;
+			Content = content;
+			ContentAsString = contentStr;
+		}
+	}
 }

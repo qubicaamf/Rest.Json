@@ -7,27 +7,27 @@ using System.Threading.Tasks;
 
 namespace Rest.Json
 {
-    public interface IRestClient
-    {
-        void AddDefaultHeader(RestHeader restHeader);
-        event Action<HttpRequestMessage> OnSendingRequest;
+	public interface IRestClient
+	{
+		void AddDefaultHeader(RestHeader restHeader);
+		event Action<HttpRequestMessage> OnSendingRequest;
 
-        //-- SEND -----------------------------------------------------------------------
-        T Send<T>(HttpRequestMessage request);
-        Task<T> SendAsync<T>(HttpRequestMessage request);
-        void Send(HttpRequestMessage request);
-        Task SendAsync(HttpRequestMessage request);
-
-
-        //-- GET -----------------------------------------------------------------------
-        T Get<T>(string address, params RestHeader[] headers);
-        Task<T> GetAsync<T>(string address, params RestHeader[] headers);
-        void Get(string address, params RestHeader[] headers);
-        Task GetAsync(string address, params RestHeader[] headers);
+		//-- SEND -----------------------------------------------------------------------
+		T Send<T>(HttpRequestMessage request);
+		Task<T> SendAsync<T>(HttpRequestMessage request);
+		void Send(HttpRequestMessage request);
+		Task SendAsync(HttpRequestMessage request);
 
 
-        //-- POST -----------------------------------------------------------------------
-        T Post<T>(string address, params RestHeader[] headers);
+		//-- GET -----------------------------------------------------------------------
+		T Get<T>(string address, params RestHeader[] headers);
+		Task<T> GetAsync<T>(string address, params RestHeader[] headers);
+		void Get(string address, params RestHeader[] headers);
+		Task GetAsync(string address, params RestHeader[] headers);
+
+
+		//-- POST -----------------------------------------------------------------------
+		T Post<T>(string address, params RestHeader[] headers);
 		T Post<T>(string address, object content, params RestHeader[] headers);
 		Task<T> PostAsync<T>(string address, params RestHeader[] headers);
 		Task<T> PostAsync<T>(string address, object content, params RestHeader[] headers);
@@ -48,10 +48,10 @@ namespace Rest.Json
 		Task PutAsync(string address, object content, params RestHeader[] headers);
 
 
-        //-- DELETE -----------------------------------------------------------------------
-        void Delete(string address, params RestHeader[] headers);
-        Task DeleteAsync(string address, params RestHeader[] headers);
-        T Delete<T>(string address, params RestHeader[] headers);
-        Task<T> DeleteAsync<T>(string address, params RestHeader[] headers);
-    }
+		//-- DELETE -----------------------------------------------------------------------
+		void Delete(string address, params RestHeader[] headers);
+		Task DeleteAsync(string address, params RestHeader[] headers);
+		T Delete<T>(string address, params RestHeader[] headers);
+		Task<T> DeleteAsync<T>(string address, params RestHeader[] headers);
+	}
 }

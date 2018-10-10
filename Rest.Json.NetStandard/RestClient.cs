@@ -11,9 +11,9 @@ namespace Rest.Json
 {
 	public class RestClient : IRestClient
 	{
-        private readonly string _baseAddress;
-        private readonly List<RestHeader> _defaultHeaders = new List<RestHeader>();
-        public event Action<HttpRequestMessage> OnSendingRequest = message => { };
+		private readonly string _baseAddress;
+		private readonly List<RestHeader> _defaultHeaders = new List<RestHeader>();
+		public event Action<HttpRequestMessage> OnSendingRequest = message => { };
 		private HttpMessageHandler _customHttpMessageHandler;
 
 #if NETSTANDARD2_0
@@ -25,12 +25,12 @@ namespace Rest.Json
 		{
 		}
 
-        public RestClient(Uri baseAddress)
-        {
-            _baseAddress = baseAddress.ToString();
-        }
+		public RestClient(Uri baseAddress)
+		{
+			_baseAddress = baseAddress.ToString();
+		}
 
-        public RestClient(string baseAddress)
+		public RestClient(string baseAddress)
 		{
 			_baseAddress = baseAddress;
 		}
@@ -40,9 +40,9 @@ namespace Rest.Json
 			_customHttpMessageHandler = httpMessageHandler;
 		}
 
-        private HttpRequestMessage CreateRequest(HttpMethod httpMethod, string address, object requestContent, RestHeader[] headers)
-        {
-            var request = new HttpRequestMessage(httpMethod, address);
+		private HttpRequestMessage CreateRequest(HttpMethod httpMethod, string address, object requestContent, RestHeader[] headers)
+		{
+			var request = new HttpRequestMessage(httpMethod, address);
 
 			foreach (var defaultHeader in _defaultHeaders)
 				AddHeader(request, defaultHeader);
@@ -51,7 +51,7 @@ namespace Rest.Json
 				AddHeader(request, header);
 
 			if (requestContent != null)
-            {
+			{
 				var contentType = GetContentType(headers);
 
 				if (requestContent.GetType() == typeof(byte[]))
@@ -88,10 +88,10 @@ namespace Rest.Json
 					{
 						throw new ArgumentException($"Content type {requestContent.GetType()} can not be serialize in XML format", ex);
 					}
-					
+
 					request.Content = new StringContent(xml, encoding, contentType.MediaType);
 				}
-                else
+				else
 				{
 					Encoding encoding = Encoding.UTF8;
 					string mediaType = "application/json";
@@ -113,15 +113,15 @@ namespace Rest.Json
 					{
 						throw new ArgumentException($"Content type {requestContent.GetType()} can not be serialize in JSON format", ex);
 					}
-					
+
 					request.Content = new StringContent(json, encoding, mediaType);
 				}
 
-				
+
 			}
 
-            return request;
-        }
+			return request;
+		}
 
 		private MediaTypeHeaderValue GetContentType(RestHeader[] headers)
 		{
@@ -137,27 +137,27 @@ namespace Rest.Json
 		}
 
 		private void AddHeader(HttpRequestMessage requestMessage, RestHeader header)
-        {
+		{
 			switch (header.Key)
-            {
-                case "Authorization":
-                    requestMessage.Headers.Authorization = AuthenticationHeaderValue.Parse(header.Value);
-                    break;
+			{
+				case "Authorization":
+					requestMessage.Headers.Authorization = AuthenticationHeaderValue.Parse(header.Value);
+					break;
 
-                case "Date":
-                    requestMessage.Headers.Date = DateTimeOffset.Parse(header.Value);
-                    break;
+				case "Date":
+					requestMessage.Headers.Date = DateTimeOffset.Parse(header.Value);
+					break;
 
-                case "Content-Type":
-                    break;
+				case "Content-Type":
+					break;
 
-                default:
-                    requestMessage.Headers.Add(header.Key, header.Value);
-                    break;
-            }
-        }
+				default:
+					requestMessage.Headers.Add(header.Key, header.Value);
+					break;
+			}
+		}
 
-        private async Task<T> ExecuteAsync<T>(HttpRequestMessage request, bool returnValue)
+		private async Task<T> ExecuteAsync<T>(HttpRequestMessage request, bool returnValue)
 		{
 			ApplyBaseUrl(request);
 			OnSendingRequest(request);
@@ -193,7 +193,7 @@ namespace Rest.Json
 			}
 		}
 
-		
+
 
 		private void ApplyBaseUrl(HttpRequestMessage request)
 		{
@@ -228,36 +228,36 @@ namespace Rest.Json
 			return httpClientHandler;
 		}
 
-        public void AddDefaultHeader(RestHeader restHeader)
-        {
-            _defaultHeaders.Add(restHeader);
-        }
+		public void AddDefaultHeader(RestHeader restHeader)
+		{
+			_defaultHeaders.Add(restHeader);
+		}
 
 
-        //-- SEND -----------------------------------------------------------------------
-        public T Send<T>(HttpRequestMessage request)
-        {
+		//-- SEND -----------------------------------------------------------------------
+		public T Send<T>(HttpRequestMessage request)
+		{
 			return Execute<T>(request, true);
 		}
 
-        public async Task<T> SendAsync<T>(HttpRequestMessage request)
-        {
+		public async Task<T> SendAsync<T>(HttpRequestMessage request)
+		{
 			return await ExecuteAsync<T>(request, true);
 		}
 
-        public void Send(HttpRequestMessage request)
-        {
+		public void Send(HttpRequestMessage request)
+		{
 			Execute<object>(request, false);
 		}
 
-        public async Task SendAsync(HttpRequestMessage request)
-        {
+		public async Task SendAsync(HttpRequestMessage request)
+		{
 			await ExecuteAsync<object>(request, false);
 		}
 
 
-        //-- GET -----------------------------------------------------------------------
-        public T Get<T>(string address, params RestHeader[] headers)
+		//-- GET -----------------------------------------------------------------------
+		public T Get<T>(string address, params RestHeader[] headers)
 		{
 			var request = CreateRequest(HttpMethod.Get, address, null, headers);
 			return Execute<T>(request, true);
@@ -268,14 +268,14 @@ namespace Rest.Json
 			var request = CreateRequest(HttpMethod.Get, address, null, headers);
 			return await ExecuteAsync<T>(request, true);
 		}
-	    public void Get(string address, params RestHeader[] headers)
-	    {
+		public void Get(string address, params RestHeader[] headers)
+		{
 			var request = CreateRequest(HttpMethod.Get, address, null, headers);
 			Execute<object>(request, false);
 		}
 
-	    public async Task GetAsync(string address, params RestHeader[] headers)
-	    {
+		public async Task GetAsync(string address, params RestHeader[] headers)
+		{
 			var request = CreateRequest(HttpMethod.Get, address, null, headers);
 			await ExecuteAsync<object>(request, false);
 		}
@@ -375,29 +375,29 @@ namespace Rest.Json
 
 
 
-        //-- DELETE -----------------------------------------------------------------------
-        public T Delete<T>(string address, params RestHeader[] headers)
-        {
+		//-- DELETE -----------------------------------------------------------------------
+		public T Delete<T>(string address, params RestHeader[] headers)
+		{
 			var request = CreateRequest(HttpMethod.Delete, address, null, headers);
 			return Execute<T>(request, true);
 		}
 
-        public async Task<T> DeleteAsync<T>(string address, params RestHeader[] headers)
-        {
+		public async Task<T> DeleteAsync<T>(string address, params RestHeader[] headers)
+		{
 			var request = CreateRequest(HttpMethod.Delete, address, null, headers);
 			return await ExecuteAsync<T>(request, true);
 		}
 
-        public void Delete(string address, params RestHeader[] headers)
-        {
+		public void Delete(string address, params RestHeader[] headers)
+		{
 			var request = CreateRequest(HttpMethod.Delete, address, null, headers);
 			Execute<object>(request, false);
 		}
 
-        public async Task DeleteAsync(string address, params RestHeader[] headers)
-        {
+		public async Task DeleteAsync(string address, params RestHeader[] headers)
+		{
 			var request = CreateRequest(HttpMethod.Delete, address, null, headers);
 			await ExecuteAsync<object>(request, false);
 		}
-    }
+	}
 }

@@ -124,8 +124,8 @@ namespace Rest.Json
 			try
 			{
 				if (typeof(T) == typeof(object))
-				return (dynamic)JsonConvert.DeserializeObject<ExpandoObject>(contentStr);
-			
+					return (dynamic)JsonConvert.DeserializeObject<ExpandoObject>(contentStr);
+
 				return JsonConvert.DeserializeObject<T>(contentStr);
 			}
 			catch (Exception ex)

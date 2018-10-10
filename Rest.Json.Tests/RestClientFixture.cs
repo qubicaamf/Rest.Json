@@ -13,125 +13,125 @@ using System.Linq;
 
 namespace Rest.Json.Tests
 {
-    [TestFixture]
-    public class RestClientFixture
-    {
-        private const string BaseAddress = "http://localhost:5000/";
-        private IRestClient _restClient;
-        private IWebHost _webHost;
+	[TestFixture]
+	public class RestClientFixture
+	{
+		private const string BaseAddress = "http://localhost:5000/";
+		private IRestClient _restClient;
+		private IWebHost _webHost;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
-        {
-            _webHost = WebHost.CreateDefaultBuilder()
-                .UseStartup<Startup>()
-                .Build();
+		[OneTimeSetUp]
+		public void OneTimeSetUp()
+		{
+			_webHost = WebHost.CreateDefaultBuilder()
+				.UseStartup<Startup>()
+				.Build();
 
-            _webHost.Start();
-        }
+			_webHost.Start();
+		}
 
-        [OneTimeTearDown]
-        public void OneTimeTearDown()
-        {
-            _webHost.Dispose();
-        }
+		[OneTimeTearDown]
+		public void OneTimeTearDown()
+		{
+			_webHost.Dispose();
+		}
 
-        [SetUp]
-        public void SetUp()
-        {
-            _restClient = new RestClient(BaseAddress);
-        }
+		[SetUp]
+		public void SetUp()
+		{
+			_restClient = new RestClient(BaseAddress);
+		}
 
-        [TearDown]
-        public void TearDown()
-        {
-        }
-
-        [Test]
-        public async Task GetAsync()
-        {
-            var model = await _restClient.GetAsync<TestModel>("api/test/1");
-
-            Assert.That(model, Is.EqualTo(new TestModel { Id = 1, Name = "Gino" }));
-        }
-
-        [Test]
-        public void Get()
-        {
-            var model = _restClient.Get<TestModel>("api/test/1");
-
-            Assert.That(model, Is.EqualTo(new TestModel { Id = 1, Name = "Gino" }));
-        }
-
-        [Test]
-        public async Task GetAsyncArray()
-        {
-            var models = await _restClient.GetAsync<TestModel[]>("api/test");
-
-            Assert.That(models.Length, Is.EqualTo(2));
-            Assert.That(models[0], Is.EqualTo(new TestModel { Id = 1, Name = "Gino" }));
-            Assert.That(models[1], Is.EqualTo(new TestModel { Id = 2, Name = "Pino" }));
-        }
-
-        [Test]
-        public void ReturnBytes()
-        {
-            var bytes = _restClient.Get<byte[]>("api/test/1");
-
-            var model = JsonConvert.DeserializeObject<TestModel>(Encoding.UTF8.GetString(bytes));
-            Assert.That(model, Is.EqualTo(new TestModel { Id = 1, Name = "Gino" }));
-        }
-
-        [Test]
-        public void ReturnExceptionOnUnexistingUrl()
-        {
-            var restClient = new RestClient("http://sadsadsadsadsa.com");
-
-            var ex = Assert.Throws<HttpRequestException>(() => restClient.Get<string>("ooooooooooo/test/1"));
-
-            Console.WriteLine("HttpRequestException: " + ex.Message);
-        }
-
-        [Test]
-        public void ReturnExceptionOnResponseNotFound()
-        {
-            var ex = Assert.Throws<RestException>(() => _restClient.Get<string>("ooooooooooo/test/1"));
-
-            Console.WriteLine("RestException: " + ex.Message);
-            Assert.That(ex.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
-            Assert.That(ex.Content, Is.Null);
-	        Assert.That(ex.ContentAsString, Is.EqualTo(string.Empty));
-			Assert.That(ex.Response, Is.Not.Null);
-        }
-
-        [Test]
-        public void ReturnExceptionOnCustomError()
-        {
-            var ex = Assert.Throws<RestException>(() => _restClient.Get("api/test/error"));
-
-            Console.WriteLine("RestException: " + ex.Message);
-            Assert.That(ex.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-            Assert.That(ex.Content.Error.Code, Is.EqualTo("MyErrorCode"));
-            Assert.That(ex.Content.Error.Message, Is.EqualTo("MyErrorMessage"));
-			Assert.That(ex.ContentAsString, Is.EqualTo("{\"Error\":{\"Code\":\"MyErrorCode\",\"Message\":\"MyErrorMessage\"}}"));
-        }
-
-	    [Test]
-	    public void ReturnExceptionOnHtmlError()
-	    {
-		    var ex = Assert.Throws<RestException>(() => _restClient.Get("api/test/errorashtml"));
-
-		    Console.WriteLine("RestException: " + ex.Message);
-		    Assert.That(ex.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-			Assert.That(ex.Content, Is.Null);
-			Assert.That(ex.ContentAsString, Is.EqualTo("<html><body>bad request</body></html>"));
-	    }
+		[TearDown]
+		public void TearDown()
+		{
+		}
 
 		[Test]
-        public async Task PostAsync()
-        {
-            await _restClient.PostAsync("api/test", new TestModel { Id = 3, Name = "Paperino" });
-        }
+		public async Task GetAsync()
+		{
+			var model = await _restClient.GetAsync<TestModel>("api/test/1");
+
+			Assert.That(model, Is.EqualTo(new TestModel { Id = 1, Name = "Gino" }));
+		}
+
+		[Test]
+		public void Get()
+		{
+			var model = _restClient.Get<TestModel>("api/test/1");
+
+			Assert.That(model, Is.EqualTo(new TestModel { Id = 1, Name = "Gino" }));
+		}
+
+		[Test]
+		public async Task GetAsyncArray()
+		{
+			var models = await _restClient.GetAsync<TestModel[]>("api/test");
+
+			Assert.That(models.Length, Is.EqualTo(2));
+			Assert.That(models[0], Is.EqualTo(new TestModel { Id = 1, Name = "Gino" }));
+			Assert.That(models[1], Is.EqualTo(new TestModel { Id = 2, Name = "Pino" }));
+		}
+
+		[Test]
+		public void ReturnBytes()
+		{
+			var bytes = _restClient.Get<byte[]>("api/test/1");
+
+			var model = JsonConvert.DeserializeObject<TestModel>(Encoding.UTF8.GetString(bytes));
+			Assert.That(model, Is.EqualTo(new TestModel { Id = 1, Name = "Gino" }));
+		}
+
+		[Test]
+		public void ReturnExceptionOnUnexistingUrl()
+		{
+			var restClient = new RestClient("http://sadsadsadsadsa.com");
+
+			var ex = Assert.Throws<HttpRequestException>(() => restClient.Get<string>("ooooooooooo/test/1"));
+
+			Console.WriteLine("HttpRequestException: " + ex.Message);
+		}
+
+		[Test]
+		public void ReturnExceptionOnResponseNotFound()
+		{
+			var ex = Assert.Throws<RestException>(() => _restClient.Get<string>("ooooooooooo/test/1"));
+
+			Console.WriteLine("RestException: " + ex.Message);
+			Assert.That(ex.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
+			Assert.That(ex.Content, Is.Null);
+			Assert.That(ex.ContentAsString, Is.EqualTo(string.Empty));
+			Assert.That(ex.Response, Is.Not.Null);
+		}
+
+		[Test]
+		public void ReturnExceptionOnCustomError()
+		{
+			var ex = Assert.Throws<RestException>(() => _restClient.Get("api/test/error"));
+
+			Console.WriteLine("RestException: " + ex.Message);
+			Assert.That(ex.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+			Assert.That(ex.Content.Error.Code, Is.EqualTo("MyErrorCode"));
+			Assert.That(ex.Content.Error.Message, Is.EqualTo("MyErrorMessage"));
+			Assert.That(ex.ContentAsString, Is.EqualTo("{\"Error\":{\"Code\":\"MyErrorCode\",\"Message\":\"MyErrorMessage\"}}"));
+		}
+
+		[Test]
+		public void ReturnExceptionOnHtmlError()
+		{
+			var ex = Assert.Throws<RestException>(() => _restClient.Get("api/test/errorashtml"));
+
+			Console.WriteLine("RestException: " + ex.Message);
+			Assert.That(ex.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+			Assert.That(ex.Content, Is.Null);
+			Assert.That(ex.ContentAsString, Is.EqualTo("<html><body>bad request</body></html>"));
+		}
+
+		[Test]
+		public async Task PostAsync()
+		{
+			await _restClient.PostAsync("api/test", new TestModel { Id = 3, Name = "Paperino" });
+		}
 
 		[Test]
 		public async Task PostNoContentAsync()
@@ -140,10 +140,10 @@ namespace Rest.Json.Tests
 		}
 
 		[Test]
-        public void Post()
-        {
-            _restClient.Post("api/test", new TestModel { Id = 3, Name = "Paperino" });
-        }
+		public void Post()
+		{
+			_restClient.Post("api/test", new TestModel { Id = 3, Name = "Paperino" });
+		}
 
 		[Test]
 		public void PostNoContent()
@@ -152,22 +152,22 @@ namespace Rest.Json.Tests
 		}
 
 		[Test]
-        public void PostAndReturnRawBytes()
-        {
-            var bytesToSend = Encoding.UTF8.GetBytes("ciaone");
+		public void PostAndReturnRawBytes()
+		{
+			var bytesToSend = Encoding.UTF8.GetBytes("ciaone");
 
-            var bytesReceived = _restClient.Post<byte[]>("api/test/textecho", bytesToSend, new RestContentTypeHeader("text/plain"));
+			var bytesReceived = _restClient.Post<byte[]>("api/test/textecho", bytesToSend, new RestContentTypeHeader("text/plain"));
 
-            Assert.That(Encoding.UTF8.GetString(bytesReceived), Is.EqualTo("ciaone"));
-        }
+			Assert.That(Encoding.UTF8.GetString(bytesReceived), Is.EqualTo("ciaone"));
+		}
 
-        [Test]
-        public async Task PostAsyncWithReturn()
-        {
-            var response = await _restClient.PostAsync<TestModel>("api/test", new TestModel { Id = 3, Name = "Paperino" });
+		[Test]
+		public async Task PostAsyncWithReturn()
+		{
+			var response = await _restClient.PostAsync<TestModel>("api/test", new TestModel { Id = 3, Name = "Paperino" });
 
-            Assert.That(response, Is.EqualTo(new TestModel { Id = 3, Name = "Paperino" }));
-        }
+			Assert.That(response, Is.EqualTo(new TestModel { Id = 3, Name = "Paperino" }));
+		}
 
 		[Test]
 		public async Task PostNoContentAsyncWithReturn()
@@ -178,12 +178,12 @@ namespace Rest.Json.Tests
 		}
 
 		[Test]
-        public void PostWithReturn()
-        {
-            var response = _restClient.Post<TestModel>("api/test", new TestModel { Id = 3, Name = "Paperino" });
+		public void PostWithReturn()
+		{
+			var response = _restClient.Post<TestModel>("api/test", new TestModel { Id = 3, Name = "Paperino" });
 
-            Assert.That(response, Is.EqualTo(new TestModel { Id = 3, Name = "Paperino" }));
-        }
+			Assert.That(response, Is.EqualTo(new TestModel { Id = 3, Name = "Paperino" }));
+		}
 
 		[Test]
 		public void PostNoContentWithReturn()
@@ -194,10 +194,10 @@ namespace Rest.Json.Tests
 		}
 
 		[Test]
-        public async Task PutAsync()
-        {
-            await _restClient.PutAsync("api/test/1", new TestModel { Id = 1, Name = "Gino" });
-        }
+		public async Task PutAsync()
+		{
+			await _restClient.PutAsync("api/test/1", new TestModel { Id = 1, Name = "Gino" });
+		}
 
 		[Test]
 		public async Task PutNoContentAsync()
@@ -206,10 +206,10 @@ namespace Rest.Json.Tests
 		}
 
 		[Test]
-        public void Put()
-        {
-            _restClient.Put("api/test/1", new TestModel { Id = 1, Name = "Gino" });
-        }
+		public void Put()
+		{
+			_restClient.Put("api/test/1", new TestModel { Id = 1, Name = "Gino" });
+		}
 
 		[Test]
 		public void PutNoContent()
@@ -218,12 +218,12 @@ namespace Rest.Json.Tests
 		}
 
 		[Test]
-        public async Task PutAsyncWithReturn()
-        {
-            var response = await _restClient.PutAsync<TestModel>("api/test/1", new TestModel { Id = 1, Name = "Gino" });
+		public async Task PutAsyncWithReturn()
+		{
+			var response = await _restClient.PutAsync<TestModel>("api/test/1", new TestModel { Id = 1, Name = "Gino" });
 
-            Assert.That(response, Is.EqualTo(new TestModel { Id = 1, Name = "Gino" }));
-        }
+			Assert.That(response, Is.EqualTo(new TestModel { Id = 1, Name = "Gino" }));
+		}
 
 		[Test]
 		public async Task PutNoContentAsyncWithReturn()
@@ -234,12 +234,12 @@ namespace Rest.Json.Tests
 		}
 
 		[Test]
-        public void PutWithReturn()
-        {
-            var response = _restClient.Put<TestModel>("api/test/1", new TestModel { Id = 1, Name = "Gino" });
+		public void PutWithReturn()
+		{
+			var response = _restClient.Put<TestModel>("api/test/1", new TestModel { Id = 1, Name = "Gino" });
 
-            Assert.That(response, Is.EqualTo(new TestModel { Id = 1, Name = "Gino" }));
-        }
+			Assert.That(response, Is.EqualTo(new TestModel { Id = 1, Name = "Gino" }));
+		}
 
 		[Test]
 		public void PutNoContentWithReturn()
@@ -250,258 +250,258 @@ namespace Rest.Json.Tests
 		}
 
 		[Test]
-        public void PutBytes()
-        {
-            var bytes = Encoding.UTF8.GetBytes("ciaone");
+		public void PutBytes()
+		{
+			var bytes = Encoding.UTF8.GetBytes("ciaone");
 
-            _restClient.Put("api/test/textecho", bytes, new RestContentTypeHeader("text/plain"));
-        }
+			_restClient.Put("api/test/textecho", bytes, new RestContentTypeHeader("text/plain"));
+		}
 
-        [Test]
-        public void SendString()
-        {
-            _restClient.Put("api/test/textecho", "ciaone", new RestContentTypeHeader("text/plain"));
-        }
+		[Test]
+		public void SendString()
+		{
+			_restClient.Put("api/test/textecho", "ciaone", new RestContentTypeHeader("text/plain"));
+		}
 
-        [Test]
-        public async Task SetHeader()
-        {
-            var value = await _restClient.GetAsync<string>("api/test/mykey", new RestHeader("MyKey", "MyValue"));
+		[Test]
+		public async Task SetHeader()
+		{
+			var value = await _restClient.GetAsync<string>("api/test/mykey", new RestHeader("MyKey", "MyValue"));
 
-            Assert.That(value, Is.EqualTo("MyValue"));
-        }
+			Assert.That(value, Is.EqualTo("MyValue"));
+		}
 
-        [Test]
-        public async Task SetAuthHeader()
-        {
-            var value = await _restClient.GetAsync<string>("api/test/authorization", new RestAuthHeader("MySchema MyUser:MyPassword"));
+		[Test]
+		public async Task SetAuthHeader()
+		{
+			var value = await _restClient.GetAsync<string>("api/test/authorization", new RestAuthHeader("MySchema MyUser:MyPassword"));
 
-            Assert.That(value, Is.EqualTo("MySchema MyUser:MyPassword"));
-        }
+			Assert.That(value, Is.EqualTo("MySchema MyUser:MyPassword"));
+		}
 
-        [Test]
-        public async Task SetDateHeaderWithDateTime()
-        {
-            var now = DateTime.Now;
+		[Test]
+		public async Task SetDateHeaderWithDateTime()
+		{
+			var now = DateTime.Now;
 
-            var value = await _restClient.GetAsync<string>("api/test/date", new RestDateHeader(now));
-            
-            Assert.That(DateTime.Parse(value), Is.EqualTo(new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second)));
-        }
+			var value = await _restClient.GetAsync<string>("api/test/date", new RestDateHeader(now));
 
-        [Test]
-        public async Task SetDateHeaderWithDateTimeOffset()
-        {
-            var now = DateTime.Now;
-            var nowPlus4 = new DateTimeOffset(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second, TimeSpan.FromHours(4));
+			Assert.That(DateTime.Parse(value), Is.EqualTo(new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second)));
+		}
 
-            var value = await _restClient.GetAsync<string>("api/test/date", new RestDateHeader(nowPlus4));
+		[Test]
+		public async Task SetDateHeaderWithDateTimeOffset()
+		{
+			var now = DateTime.Now;
+			var nowPlus4 = new DateTimeOffset(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second, TimeSpan.FromHours(4));
 
-            Assert.That(DateTimeOffset.Parse(value), Is.EqualTo(nowPlus4));
-        }
+			var value = await _restClient.GetAsync<string>("api/test/date", new RestDateHeader(nowPlus4));
 
-        [Test]
-        public async Task SetDefaultHeader()
-        {
-            _restClient.AddDefaultHeader(new RestHeader("MyKey", "MyValue"));
+			Assert.That(DateTimeOffset.Parse(value), Is.EqualTo(nowPlus4));
+		}
 
-            var value = await _restClient.GetAsync<string>("api/test/mykey");
+		[Test]
+		public async Task SetDefaultHeader()
+		{
+			_restClient.AddDefaultHeader(new RestHeader("MyKey", "MyValue"));
 
-            Assert.That(value, Is.EqualTo("MyValue"));
-        }
+			var value = await _restClient.GetAsync<string>("api/test/mykey");
 
-        [Test]
-        public async Task ReturnHttpResponseMessage()
-        {
-            var response = await _restClient.GetAsync<HttpResponseMessage>("api/test/1");
+			Assert.That(value, Is.EqualTo("MyValue"));
+		}
 
-            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+		[Test]
+		public async Task ReturnHttpResponseMessage()
+		{
+			var response = await _restClient.GetAsync<HttpResponseMessage>("api/test/1");
 
-            var resturnedJson = await response.Content.ReadAsStringAsync();
-            var expectedJson = JsonConvert.SerializeObject(new TestModel { Id = 1, Name = "Gino" });
+			Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
 
-            Assert.That(resturnedJson, Is.EqualTo(expectedJson));
-        }
+			var resturnedJson = await response.Content.ReadAsStringAsync();
+			var expectedJson = JsonConvert.SerializeObject(new TestModel { Id = 1, Name = "Gino" });
 
-        [Test]
-        public async Task ReturnHttpResponseMessageDoesntThrowRestException()
-        {
-            var response = await _restClient.GetAsync<HttpResponseMessage>("api1234/test/1");
+			Assert.That(resturnedJson, Is.EqualTo(expectedJson));
+		}
 
-            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
-        }
+		[Test]
+		public async Task ReturnHttpResponseMessageDoesntThrowRestException()
+		{
+			var response = await _restClient.GetAsync<HttpResponseMessage>("api1234/test/1");
 
-        [Test]
-        public async Task SendAsyncHttpRequestMessage()
-        {
-            var sentJson = JsonConvert.SerializeObject(new TestModel { Id = 3, Name = "Paperino" });
+			Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
+		}
 
-            var request = new HttpRequestMessage(HttpMethod.Post, "api/test") { Content = new StringContent(sentJson, Encoding.UTF8, "application/json") };
+		[Test]
+		public async Task SendAsyncHttpRequestMessage()
+		{
+			var sentJson = JsonConvert.SerializeObject(new TestModel { Id = 3, Name = "Paperino" });
 
-            await _restClient.SendAsync(request);
-        }
+			var request = new HttpRequestMessage(HttpMethod.Post, "api/test") { Content = new StringContent(sentJson, Encoding.UTF8, "application/json") };
 
-        [Test]
-        public void SendHttpRequestMessage()
-        {
-            var sentJson = JsonConvert.SerializeObject(new TestModel { Id = 3, Name = "Paperino" });
+			await _restClient.SendAsync(request);
+		}
 
-            var request = new HttpRequestMessage(HttpMethod.Post, "api/test") { Content = new StringContent(sentJson, Encoding.UTF8, "application/json") };
+		[Test]
+		public void SendHttpRequestMessage()
+		{
+			var sentJson = JsonConvert.SerializeObject(new TestModel { Id = 3, Name = "Paperino" });
 
-            _restClient.Send(request);
-        }
+			var request = new HttpRequestMessage(HttpMethod.Post, "api/test") { Content = new StringContent(sentJson, Encoding.UTF8, "application/json") };
 
-        [Test]
-        public async Task SendAsyncHttpRequestMessageWithReturn()
-        {
-            var sentJson = JsonConvert.SerializeObject(new TestModel { Id = 3, Name = "Paperino" });
+			_restClient.Send(request);
+		}
 
-            var request = new HttpRequestMessage(HttpMethod.Post, "api/test") { Content = new StringContent(sentJson, Encoding.UTF8, "application/json") };
+		[Test]
+		public async Task SendAsyncHttpRequestMessageWithReturn()
+		{
+			var sentJson = JsonConvert.SerializeObject(new TestModel { Id = 3, Name = "Paperino" });
 
-            var response = await _restClient.SendAsync<TestModel>(request);
+			var request = new HttpRequestMessage(HttpMethod.Post, "api/test") { Content = new StringContent(sentJson, Encoding.UTF8, "application/json") };
 
-            Assert.That(response, Is.EqualTo(new TestModel { Id = 3, Name = "Paperino" }));
-        }
+			var response = await _restClient.SendAsync<TestModel>(request);
 
-        [Test]
-        public async Task NormalizeAddress()
-        {
-            var restClient = new RestClient("http://localhost:5000/api");
+			Assert.That(response, Is.EqualTo(new TestModel { Id = 3, Name = "Paperino" }));
+		}
 
-            await restClient.GetAsync<TestModel>("test/1");
-        }
+		[Test]
+		public async Task NormalizeAddress()
+		{
+			var restClient = new RestClient("http://localhost:5000/api");
 
-        [Test]
-        public async Task NormalizeAddress2()
-        {
-            var restClient = new RestClient("http://localhost:5000/api");
+			await restClient.GetAsync<TestModel>("test/1");
+		}
 
-            await restClient.GetAsync<TestModel>("/test/1");
-        }
+		[Test]
+		public async Task NormalizeAddress2()
+		{
+			var restClient = new RestClient("http://localhost:5000/api");
 
-        [Test]
-        public async Task NormalizeAddress3()
-        {
-            var restClient = new RestClient("http://localhost:5000/api/test/1");
+			await restClient.GetAsync<TestModel>("/test/1");
+		}
 
-            await restClient.GetAsync<TestModel>("");
-        }
+		[Test]
+		public async Task NormalizeAddress3()
+		{
+			var restClient = new RestClient("http://localhost:5000/api/test/1");
 
-        [Test]
-        public async Task EmptyBaseAddress()
-        {
-            var restClient = new RestClient();
+			await restClient.GetAsync<TestModel>("");
+		}
 
-            await restClient.GetAsync<TestModel>("http://localhost:5000/api/test/1");
-        }
+		[Test]
+		public async Task EmptyBaseAddress()
+		{
+			var restClient = new RestClient();
 
-        [Test]
-        public async Task GetDynamic()
-        {
-            var model = await _restClient.GetAsync<dynamic>("api/test/1");
+			await restClient.GetAsync<TestModel>("http://localhost:5000/api/test/1");
+		}
 
-            Console.WriteLine(model.Id);
-            Console.WriteLine(model.Name);
+		[Test]
+		public async Task GetDynamic()
+		{
+			var model = await _restClient.GetAsync<dynamic>("api/test/1");
 
-            Assert.That(model.Id, Is.EqualTo(1));
-            Assert.That(model.Name, Is.EqualTo("Gino"));
-        }
+			Console.WriteLine(model.Id);
+			Console.WriteLine(model.Name);
 
-        [Test]
-        public async Task DeleteAsync()
-        {
-            await _restClient.DeleteAsync("api/test/1");
-        }
+			Assert.That(model.Id, Is.EqualTo(1));
+			Assert.That(model.Name, Is.EqualTo("Gino"));
+		}
 
-        [Test]
-        public void Delete()
-        {
-            _restClient.Delete("api/test/1");
-        }
+		[Test]
+		public async Task DeleteAsync()
+		{
+			await _restClient.DeleteAsync("api/test/1");
+		}
 
-        [Test]
-        public async Task DeleteAsyncReturnsHttpResponseMessage()
-        {
-            var response = await _restClient.DeleteAsync<HttpResponseMessage>("api/test/1");
+		[Test]
+		public void Delete()
+		{
+			_restClient.Delete("api/test/1");
+		}
 
-            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-        }
+		[Test]
+		public async Task DeleteAsyncReturnsHttpResponseMessage()
+		{
+			var response = await _restClient.DeleteAsync<HttpResponseMessage>("api/test/1");
 
-        [Test]
-        public void DeleteReturnsHttpResponseMessage()
-        {
-            var response = _restClient.Delete<HttpResponseMessage>("api/test/1");
+			Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+		}
 
-            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-        }
+		[Test]
+		public void DeleteReturnsHttpResponseMessage()
+		{
+			var response = _restClient.Delete<HttpResponseMessage>("api/test/1");
 
-        [Test]
-        public void OnSendingRequest()
-        {
-            bool eventFired = false;
-            _restClient.OnSendingRequest += request =>
-            {
-                eventFired = true;
-                Assert.That(request.RequestUri, Is.EqualTo(new Uri(BaseAddress + "api/test/1")));
-            };
+			Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+		}
 
-            _restClient.Get<TestModel>("api/test/1");
+		[Test]
+		public void OnSendingRequest()
+		{
+			bool eventFired = false;
+			_restClient.OnSendingRequest += request =>
+			{
+				eventFired = true;
+				Assert.That(request.RequestUri, Is.EqualTo(new Uri(BaseAddress + "api/test/1")));
+			};
 
-            Assert.IsTrue(eventFired);
-        }
+			_restClient.Get<TestModel>("api/test/1");
 
-        [Test]
-        public void DeleteReturnError()
-        {
-            var restClient = new RestClient(BaseAddress);
+			Assert.IsTrue(eventFired);
+		}
 
-            var ex = Assert.Throws<RestException>(() => restClient.Delete("api/test/1?errorCode=500"));
+		[Test]
+		public void DeleteReturnError()
+		{
+			var restClient = new RestClient(BaseAddress);
 
-            Assert.That(ex.StatusCode, Is.EqualTo(HttpStatusCode.InternalServerError));
-        }
+			var ex = Assert.Throws<RestException>(() => restClient.Delete("api/test/1?errorCode=500"));
 
-        [Test]
-        public async Task ManageNoContentStatusCode()
-        {
-            var response = await _restClient.GetAsync<HttpResponseMessage>("api/test/returnnocontent");
+			Assert.That(ex.StatusCode, Is.EqualTo(HttpStatusCode.InternalServerError));
+		}
 
-            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NoContent));
-        }
+		[Test]
+		public async Task ManageNoContentStatusCode()
+		{
+			var response = await _restClient.GetAsync<HttpResponseMessage>("api/test/returnnocontent");
 
-        [Test]
-        public async Task ReturnNullOnNoContent()
-        {
-            var response = await _restClient.GetAsync<dynamic>("api/test/returnnocontent");
+			Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NoContent));
+		}
 
-            Assert.That(response, Is.Null);
-        }
+		[Test]
+		public async Task ReturnNullOnNoContent()
+		{
+			var response = await _restClient.GetAsync<dynamic>("api/test/returnnocontent");
 
-        [Test]
-        public async Task ReturnNullOnContentNotJson()
-        {
-            var response = await _restClient.GetAsync<dynamic>("api/test/html");
+			Assert.That(response, Is.Null);
+		}
 
-            Assert.That(response, Is.Null);
-        }
+		[Test]
+		public async Task ReturnNullOnContentNotJson()
+		{
+			var response = await _restClient.GetAsync<dynamic>("api/test/html");
 
-        [Test]
-        public void ReturnExceptionOnResponseRedirect3XX()
-        {
-            var ex = Assert.Throws<RestException>(() => _restClient.Get<dynamic>("api/test/redirect"));
+			Assert.That(response, Is.Null);
+		}
 
-            Console.WriteLine("RestException: " + ex.Message);
-            Assert.That(ex.StatusCode, Is.EqualTo(HttpStatusCode.Redirect));
-            Assert.That(ex.Content, Is.Null);
-            Assert.That(ex.Response, Is.Not.Null);
-        }
+		[Test]
+		public void ReturnExceptionOnResponseRedirect3XX()
+		{
+			var ex = Assert.Throws<RestException>(() => _restClient.Get<dynamic>("api/test/redirect"));
 
-        [Test]
-        public async Task SendAndReceivePlainText()
-        {
-            var value = await _restClient.PostAsync<string>("api/test/text", "ciao");
+			Console.WriteLine("RestException: " + ex.Message);
+			Assert.That(ex.StatusCode, Is.EqualTo(HttpStatusCode.Redirect));
+			Assert.That(ex.Content, Is.Null);
+			Assert.That(ex.Response, Is.Not.Null);
+		}
 
-            Assert.That(value, Is.EqualTo("ciao"));
-        }
+		[Test]
+		public async Task SendAndReceivePlainText()
+		{
+			var value = await _restClient.PostAsync<string>("api/test/text", "ciao");
+
+			Assert.That(value, Is.EqualTo("ciao"));
+		}
 
 		[Test]
 		public async Task GetRestResponseAsync()

@@ -34,7 +34,7 @@ namespace Rest.Json
 			return result;
 		}
 
-		
+
 	}
 
 	internal class ExtendedStringWriter : StringWriter
