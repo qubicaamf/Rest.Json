@@ -594,58 +594,5 @@ namespace Rest.Json.Tests
 			await _restClient.PostAsync("api/test", new TestModel { Id = 3, Name = "Paperino" },
 				new RestContentTypeHeader("application/json", Encoding.Unicode));
 		}
-
-		[Test]
-		public void ConvertToXml()
-		{
-			var model = new TestModel { Id = 3, Name = "Paperino" };
-
-			var xml = SerializeObject(model);
-
-			Console.WriteLine(xml);
-		}
-
-		public static string SerializeObject(object value)
-		{
-			var serializer = new System.Xml.Serialization.XmlSerializer(value.GetType());
-			var sb = new StringBuilder();
-
-			using (System.IO.TextWriter writer = new ExtendedStringWriter(sb, "utf-8"))
-			{
-				serializer.Serialize(writer, value);
-			}
-
-			return sb.ToString();
-		}
-
-		public class ExtendedStringWriter : System.IO.StringWriter
-		{
-			private readonly Encoding _encoding;
-
-			public ExtendedStringWriter(StringBuilder stringBuilder, string encodingName)
-				: base(stringBuilder)
-			{
-				_encoding = Encoding.GetEncoding(encodingName);
-			}
-
-			public override Encoding Encoding => _encoding;
-		}
-
-		//public static string SerializeObject2(object value)
-		//{
-		//	System.Xml.XmlWriterSettings settings = new System.Xml.XmlWriterSettings();
-		//	settings.IndentChars = "\t";
-		//	settings.Indent = true;
-
-		//	using (System.IO.StringWriter sw = new System.IO.StringWriter())
-		//	using (System.Xml.XmlWriter xw = System.Xml.XmlWriter.Create(sw, settings))
-		//	{
-		//		new System.Xml.Serialization.XmlSerializer(value.GetType()).Serialize(xw, value, null, "utf-8");
-		//		string xml = sw.ToString();
-
-		//		return xml;
-		//	}
-
-		//}
 	}
 }
