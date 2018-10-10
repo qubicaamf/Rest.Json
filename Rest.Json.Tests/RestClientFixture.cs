@@ -258,7 +258,7 @@ namespace Rest.Json.Tests
 		}
 
 		[Test]
-		public void SendString()
+		public void PutString()
 		{
 			_restClient.Put("api/test/textecho", "ciaone", new RestContentTypeHeader("text/plain"));
 		}
@@ -593,6 +593,15 @@ namespace Rest.Json.Tests
 
 			await _restClient.PostAsync("api/test", new TestModel { Id = 3, Name = "Paperino" },
 				new RestContentTypeHeader("application/json", Encoding.Unicode));
+
+			await _restClient.PostAsync("api/test/text", "ciao",
+				new RestContentTypeHeader("text/plain; charset=utf-16"));
+
+			await _restClient.PostAsync("api/test/text", "ciao",
+				new RestContentTypeHeader("text/plain", "utf-16"));
+
+			await _restClient.PostAsync("api/test/text", "ciao",
+				new RestContentTypeHeader("text/plain", Encoding.Unicode));
 		}
 	}
 }
